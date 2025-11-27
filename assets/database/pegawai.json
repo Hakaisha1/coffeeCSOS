@@ -1,0 +1,24 @@
+[
+    {
+        "id_pegawai": "111",
+        "nama": "Andi",
+        "posisi": "Barista",
+        "shift": "Pagi",
+        "gaji_per_jam": 15000,
+        "jam_kerja": 6,
+        "bonus_per_minuman": 1000,
+        "minuman_terjual": 20,
+        "jenis": "barista"
+    },
+    {
+        "id_pegawai": "112",
+        "nama": "Bahlil",
+        "posisi": "Barista",
+        "shift": "Pagi, Siang, Sore, Malam",
+        "gaji_per_jam": 500,
+        "jam_kerja": 24,
+        "bonus_per_minuman": 1000,
+        "minuman_terjual": 30,
+        "jenis": "barista"
+    }
+]
