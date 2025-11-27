@@ -32,6 +32,6 @@ urlpatterns = [
     # HINT untuk pegawai app:
     # path('pegawai/', include('pegawai.urls')),
     
-    # HINT untuk logistik app:
-    # path('logistik/', include('logistik.urls')),
+    path('logistik/', include('logistik.urls')),
+
 ]
