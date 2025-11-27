@@ -1,0 +1,116 @@
+{% extends 'report/base.html' %}
+
+{% block title %}Laporan Pelanggan - Coffee CSOS{% endblock %}
+
+{% block content %}
+{% if report.message %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> {{ report.message }}
+    </div>
+{% else %}
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Customer</h6>
+                    <h2 class="text-primary">{{ report.total_customer }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Saldo Semua Customer</h6>
+                    <h2 class="text-success">{{ report.total_saldo_semua_customer }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Rata-rata Saldo</h6>
+                    <h2 class="text-warning">{{ report.rata_rata_saldo }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Customer Card -->
+    {% if report.customer_terbaik %}
+    <div class="card stat-card mb-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-star-fill"></i> Customer Terbaik Bulan Ini
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Nama:</strong> {{ report.customer_terbaik.nama }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Total Pembelian:</strong> {{ report.customer_terbaik.total_pembelian }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Jumlah Transaksi:</strong> 
+                        <span class="badge bg-success fs-6">{{ report.customer_terbaik.jumlah_transaksi }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Customer Table -->
+    <div class="card stat-card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Detail Pelanggan</h5>
+            <a href="{% url 'report:api_customer' %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                <i class="bi bi-code-square"></i> API
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nama</th>
+                            <th>Saldo Saat Ini</th>
+                            <th>Total Top Up</th>
+                            <th>Total Pembelian</th>
+                            <th>Jumlah Transaksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in report.detail_customer %}
+                        <tr>
+                            <td><strong>{{ customer.nama }}</strong></td>
+                            <td>{{ customer.saldo_saat_ini }}</td>
+                            <td>{{ customer.total_top_up }}</td>
+                            <td><strong class="text-success">{{ customer.total_pembelian }}</strong></td>
+                            <td>
+                                <span class="badge bg-info">{{ customer.jumlah_transaksi }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- API Access Info -->
+<div class="mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h6 class="text-muted">API Endpoint:</h6>
+            <code>GET {% url 'report:api_customer' %}</code>
+            <p class="mt-2 mb-0 text-muted small">
+                Akses data ini dalam format JSON untuk integrasi dengan aplikasi lain
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

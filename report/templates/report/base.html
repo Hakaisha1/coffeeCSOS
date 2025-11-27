@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Coffee CSOS - Report System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --secondary-color: #c7a17a;
+            --accent-color: #f4e4c1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #5a3d2b 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            width: 250px;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        .stat-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color) !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(111, 78, 55, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="navbar-brand mb-4">
+                <i class="bi bi-cup-hot-fill"></i> Coffee CSOS
+            </div>
+            
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                   href="{% url 'report:dashboard' %}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'employee_report' %}active{% endif %}" 
+                   href="{% url 'report:employee_report' %}">
+                    <i class="bi bi-people-fill"></i> Laporan Karyawan
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'customer_report' %}active{% endif %}" 
+                   href="{% url 'report:customer_report' %}">
+                    <i class="bi bi-person-badge"></i> Laporan Pelanggan
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'sales_report' %}active{% endif %}" 
+                   href="{% url 'report:sales_report' %}">
+                    <i class="bi bi-graph-up-arrow"></i> Laporan Penjualan
+                </a>
+                
+                <a class="nav-link {% if request.resolver_match.url_name == 'inventory_report' %}active{% endif %}" 
+                   href="{% url 'report:inventory_report' %}">
+                    <i class="bi bi-box-seam"></i> Laporan Inventory
+                </a>
+                
+                <hr class="text-white">
+                
+                <a class="nav-link" href="{% url 'report:export_all_json' %}">
+                    <i class="bi bi-download"></i> Export JSON
+                </a>
+                
+                <a class="nav-link" href="{% url 'admin:index' %}">
+                    <i class="bi bi-gear-fill"></i> Admin Panel
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content flex-grow-1">
+            {% if page_title %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">{{ page_title }}</h1>
+                <div>
+                    <span class="text-muted">
+                        <i class="bi bi-calendar3"></i> 
+                        {% now "d M Y" %}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>Error!</strong> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+            
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

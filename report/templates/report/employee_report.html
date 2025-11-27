@@ -1,0 +1,138 @@
+{% extends 'report/base.html' %}
+
+{% block title %}Laporan Karyawan - Coffee CSOS{% endblock %}
+
+{% block content %}
+{% if report.message %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> {{ report.message }}
+    </div>
+{% else %}
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Pegawai</h6>
+                    <h2 class="text-primary">{{ report.total_pegawai }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Minuman Terjual</h6>
+                    <h2 class="text-success">{{ report.total_minuman_terjual }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Jam Kerja</h6>
+                    <h2 class="text-warning">{{ report.total_jam_kerja }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Gaji</h6>
+                    <h2 class="text-info">{{ report.total_gaji_dibayarkan }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Employee Card -->
+    {% if report.pegawai_terbaik %}
+    <div class="card stat-card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-trophy-fill"></i> Pegawai Terbaik Bulan Ini
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Nama:</strong> {{ report.pegawai_terbaik.nama }}</p>
+                    <p><strong>Posisi:</strong> {{ report.pegawai_terbaik.posisi }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Minuman Terjual:</strong> {{ report.pegawai_terbaik.minuman_terjual }}</p>
+                    <p><strong>Performance Score:</strong> 
+                        <span class="badge bg-success fs-6">{{ report.pegawai_terbaik.performance_score }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Employee Table -->
+    <div class="card stat-card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Detail Karyawan</h5>
+            <a href="{% url 'report:export_employee_csv' %}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-file-earmark-excel"></i> Export CSV
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Posisi</th>
+                            <th>Shift</th>
+                            <th>Jam Kerja</th>
+                            <th>Minuman Terjual</th>
+                            <th>Gaji Pokok</th>
+                            <th>Bonus</th>
+                            <th>Total Gaji</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in report.detail_pegawai %}
+                        <tr>
+                            <td>{{ emp.id_pegawai }}</td>
+                            <td>
+                                <strong>{{ emp.nama }}</strong>
+                                {% if emp.jenis == 'barista' %}
+                                    <span class="badge bg-info">Barista</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ emp.posisi }}</td>
+                            <td><span class="badge bg-secondary">{{ emp.shift }}</span></td>
+                            <td>{{ emp.jam_kerja }} jam</td>
+                            <td>{{ emp.minuman_terjual }}</td>
+                            <td>{{ emp.gaji_pokok }}</td>
+                            <td>{{ emp.bonus }}</td>
+                            <td><strong>{{ emp.total_gaji }}</strong></td>
+                            <td>
+                                <span class="badge bg-success">{{ emp.performance_score }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- API Access Info -->
+<div class="mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h6 class="text-muted">API Endpoint:</h6>
+            <code>GET {% url 'report:api_employee' %}</code>
+            <p class="mt-2 mb-0 text-muted small">
+                Akses data ini dalam format JSON untuk integrasi dengan aplikasi lain
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

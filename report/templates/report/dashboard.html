@@ -1,0 +1,161 @@
+{% extends 'report/base.html' %}
+
+{% block title %}Dashboard - Coffee CSOS{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Quick Stats Cards -->
+    {% if best_employee %}
+    <div class="col-md-4">
+        <div class="card stat-card border-start border-primary border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Pegawai Terbaik</h6>
+                        <h4 class="mb-0">{{ best_employee.nama }}</h4>
+                        <small class="text-muted">{{ best_employee.posisi }}</small>
+                    </div>
+                    <div class="text-primary fs-1">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <span class="badge bg-primary">Score: {{ best_employee.performance_score }}</span>
+                    <span class="badge bg-info">{{ best_employee.minuman_terjual }} minuman</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if top_customer %}
+    <div class="col-md-4">
+        <div class="card stat-card border-start border-success border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Customer Terbaik</h6>
+                        <h4 class="mb-0">{{ top_customer.nama }}</h4>
+                        <small class="text-muted">{{ top_customer.total_pembelian }}</small>
+                    </div>
+                    <div class="text-success fs-1">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <span class="badge bg-success">{{ top_customer.jumlah_transaksi }} transaksi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if best_menu %}
+    <div class="col-md-4">
+        <div class="card stat-card border-start border-warning border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Menu Terlaris</h6>
+                        <h4 class="mb-0">{{ best_menu.nama }}</h4>
+                        <small class="text-muted">{{ best_menu.total_pendapatan }}</small>
+                    </div>
+                    <div class="text-warning fs-1">
+                        <i class="bi bi-cup-hot-fill"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <span class="badge bg-warning text-dark">{{ best_menu.jumlah_terjual }} terjual</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Report Summaries -->
+<div class="row g-4">
+    {% for report in reports %}
+    <div class="col-lg-6">
+        <div class="card stat-card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    {% if report.title == 'Laporan Karyawan' %}
+                        <i class="bi bi-people-fill text-primary"></i>
+                    {% elif report.title == 'Laporan Pelanggan' %}
+                        <i class="bi bi-person-badge text-success"></i>
+                    {% elif report.title == 'Laporan Penjualan' %}
+                        <i class="bi bi-graph-up text-warning"></i>
+                    {% else %}
+                        <i class="bi bi-box-seam text-info"></i>
+                    {% endif %}
+                    {{ report.title }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if report.content.message %}
+                    <p class="text-muted">{{ report.content.message }}</p>
+                {% else %}
+                    <div class="row g-3">
+                        {% if report.title == 'Laporan Karyawan' %}
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Pegawai</p>
+                                <h4>{{ report.content.total_pegawai }}</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Gaji</p>
+                                <h4>{{ report.content.total_gaji_dibayarkan }}</h4>
+                            </div>
+                        {% elif report.title == 'Laporan Pelanggan' %}
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Customer</p>
+                                <h4>{{ report.content.total_customer }}</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Saldo</p>
+                                <h4>{{ report.content.total_saldo_semua_customer }}</h4>
+                            </div>
+                        {% elif report.title == 'Laporan Penjualan' %}
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Transaksi</p>
+                                <h4>{{ report.content.total_transaksi }}</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Pendapatan</p>
+                                <h4>{{ report.content.total_pendapatan }}</h4>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-3">
+                        {% if report.title == 'Laporan Karyawan' %}
+                            <a href="{% url 'report:employee_report' %}" class="btn btn-sm btn-primary">
+                                Lihat Detail <i class="bi bi-arrow-right"></i>
+                            </a>
+                        {% elif report.title == 'Laporan Pelanggan' %}
+                            <a href="{% url 'report:customer_report' %}" class="btn btn-sm btn-success">
+                                Lihat Detail <i class="bi bi-arrow-right"></i>
+                            </a>
+                        {% elif report.title == 'Laporan Penjualan' %}
+                            <a href="{% url 'report:sales_report' %}" class="btn btn-sm btn-warning">
+                                Lihat Detail <i class="bi bi-arrow-right"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-4">
+    <div class="card">
+        <div class="card-body text-center">
+            <p class="text-muted mb-3">Export semua data report ke JSON</p>
+            <a href="{% url 'report:export_all_json' %}" class="btn btn-outline-primary">
+                <i class="bi bi-download"></i> Download JSON Report
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

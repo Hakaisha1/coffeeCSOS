@@ -1,0 +1,186 @@
+{% extends 'report/base.html' %}
+
+{% block title %}Laporan Penjualan - Coffee CSOS{% endblock %}
+
+{% block content %}
+{% if report.message %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> {{ report.message }}
+    </div>
+{% else %}
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Transaksi</h6>
+                    <h2 class="text-primary">{{ report.total_transaksi }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Pendapatan</h6>
+                    <h2 class="text-success">{{ report.total_pendapatan }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Rata-rata per Transaksi</h6>
+                    <h2 class="text-warning">{{ report.rata_rata_transaksi }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Selling Menu Card -->
+    {% if report.menu_terlaris %}
+    <div class="card stat-card mb-4 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="bi bi-cup-hot-fill"></i> Menu Terlaris Bulan Ini
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Nama Menu:</strong> {{ report.menu_terlaris.nama }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Jumlah Terjual:</strong> 
+                        <span class="badge bg-warning text-dark fs-6">{{ report.menu_terlaris.jumlah_terjual }}</span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Total Pendapatan:</strong> {{ report.menu_terlaris.total_pendapatan }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Sales Chart -->
+    <div class="card stat-card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Grafik Penjualan per Menu</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="salesChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <!-- Menu Sales Table -->
+    <div class="card stat-card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Detail Penjualan per Menu</h5>
+            <a href="{% url 'report:api_sales' %}" class="btn btn-sm btn-outline-primary" target="_blank">
+                <i class="bi bi-code-square"></i> API
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Nama Menu</th>
+                            <th>Jumlah Terjual</th>
+                            <th>Total Pendapatan</th>
+                            <th>% Kontribusi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for menu in report.detail_per_menu %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ menu.nama_menu }}</strong></td>
+                            <td>
+                                <span class="badge bg-info">{{ menu.jumlah_terjual }}</span>
+                            </td>
+                            <td><strong class="text-success">{{ menu.total_pendapatan }}</strong></td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ menu.jumlah_terjual }}%"
+                                         aria-valuenow="{{ menu.jumlah_terjual }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- API Access Info -->
+<div class="mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h6 class="text-muted">API Endpoint:</h6>
+            <code>GET {% url 'report:api_sales' %}</code>
+            <p class="mt-2 mb-0 text-muted small">
+                Akses data ini dalam format JSON untuk integrasi dengan aplikasi lain
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('salesChart');
+    
+    // Data dari template
+    const menuData = [
+        {% for menu in report.detail_per_menu %}
+        {
+            name: '{{ menu.nama_menu }}',
+            sold: {{ menu.jumlah_terjual }},
+        },
+        {% endfor %}
+    ];
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: menuData.map(item => item.name),
+            datasets: [{
+                label: 'Jumlah Terjual',
+                data: menuData.map(item => item.sold),
+                backgroundColor: 'rgba(111, 78, 55, 0.8)',
+                borderColor: 'rgba(111, 78, 55, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Performa Penjualan Menu'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
