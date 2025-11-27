@@ -15,8 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # CONTOH LENGKAP: Include report URLs
+    # Semua URL dari report.urls akan diakses dengan prefix 'reports/'
+    # Contoh: /reports/, /reports/employee/, /reports/api/employee/
+    path('reports/', include('report.urls')),
+    
+    # TODO (OPTIONAL): Tambahkan URL patterns untuk app lain jika diperlukan
+    # HINT untuk customer app:
+    # path('customer/', include('customer.urls')),
+    
+    # HINT untuk pegawai app:
+    # path('pegawai/', include('pegawai.urls')),
+    
+    # HINT untuk logistik app:
+    # path('logistik/', include('logistik.urls')),
 ]
