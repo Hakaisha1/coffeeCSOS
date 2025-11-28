@@ -39,7 +39,6 @@ class pegawai:
     }
   
   def simpan_ke_db(self):
-    """Simpan ke SQLite database"""
     PegawaiModel.objects.update_or_create(
       id_pegawai=self.id_pegawai,
       defaults={
@@ -84,7 +83,6 @@ class barista(pegawai):
     return data
 
   def simpan_ke_db(self):
-    """Simpan ke SQLite database"""
     BaristaModel.objects.update_or_create(
       id_pegawai=self.id_pegawai,
       defaults={
@@ -118,40 +116,6 @@ class manajemen_pegawai:
     for peg in self.daftar_pegawai:
       peg.tampilkan_info()
 
-  def simpan_data(self, filename):
-    """Simpan ke file JSON"""
-    data = [pegawai.database() for pegawai in self.daftar_pegawai]
-    with open(filename, 'w') as f:
-      json.dump(data, f, indent=4)
-
-  def simpan_ke_database(self):
-    """Simpan semua pegawai ke SQLite database"""
-    for peg in self.daftar_pegawai:
-      peg.simpan_ke_db()
-    print(f'✓ {len(self.daftar_pegawai)} pegawai berhasil disimpan ke database')
-
-  def get_json(self, filename):
-    """Load dari file JSON"""
-    with open(filename, 'r') as f:
-      data = json.load(f)
-
-    for item in data:
-      if item.get('jenis') == 'barista':
-        peg = barista(
-          item['id_pegawai'], item['nama'],
-          item['shift'], item['id_pegawai'],
-          item['bonus_per_minuman']
-        )
-        peg.jam_kerja = item['jam_kerja']
-        peg.minuman_terjual = item['minuman_terjual']
-      else:
-        peg = pegawai(
-          item['id_pegawai'], item['nama'],
-          item['posisi'], item['shift'],
-          item['gaji_per_jam']
-        )
-        peg.jam_kerja = item['jam_kerja']
-      self.daftar_pegawai.append(peg)
 
   def load_dari_database(self):
     # Load Barista
@@ -185,9 +149,6 @@ if __name__ == '__main__':
   m = manajemen_pegawai()
   m.tambah_pegawai(b1)
   m.tambah_pegawai(b2)
-
-  # Simpan ke JSON
-  m.simpan_data('assets/database/pegawai.json')
 
   # Simpan ke SQLite Database
   m.simpan_ke_database()
