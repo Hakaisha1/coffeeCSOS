@@ -2,7 +2,6 @@ import json
 import os
 import django
 
-# Setup Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'coffeeCSOS.settings')
 django.setup()
 
