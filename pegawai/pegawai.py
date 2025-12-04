@@ -133,8 +133,7 @@ class manajemen_pegawai:
       peg.jam_kerja = p.jam_kerja
       self.daftar_pegawai.append(peg)
     
-    print(f'✓ {len(self.daftar_pegawai)} pegawai berhasil dimuat dari database')
-
+    print(f'{len(self.daftar_pegawai)} pegawai berhasil dimuat dari database')
 
 
 if __name__ == '__main__':
@@ -149,8 +148,7 @@ if __name__ == '__main__':
   m = manajemen_pegawai()
   m.tambah_pegawai(b1)
   m.tambah_pegawai(b2)
-
-  # Simpan ke SQLite Database
+  
   m.simpan_ke_database()
 
   hasil = m.cari_pegawai('111')
@@ -164,34 +162,4 @@ if __name__ == '__main__':
     print('-' * 30)
 
   m.tampilkan_semua()
-  def __init__(self, id_pegawai, nama, posisi, shift, gaji_per_jam):
-    self.nama = nama
-    self.id_pegawai = id_pegawai
-    self.posisi = posisi
-    self.shift = shift
-    self.gaji_per_jam = gaji_per_jam
-    self.jam_kerja = 0
-
-  def tambah_jam_kerja(self, jam):
-    self.jam_kerja += jam
-
-  def hitung_gaji(self):
-    return self.jam_kerja * self.gaji_per_jam
-    
-  def tampilkan_info(self):
-    print(f'ID Pegawai : {self.id_pegawai} ')
-    print(f'Nama       : {self.nama} ')
-    print(f'Posisi     : {self.posisi} ')
-    print(f'Shift      : {self.shift} ')
-    print('-' * 30)
-
-  def database(self):
-    return {
-      'id_pegawai': self.id_pegawai,
-      'nama': self.nama,
-      'posisi': self.posisi,
-      'shift': self.shift,
-      'gaji_per_jam': self.gaji_per_jam,
-      'jam_kerja': self.jam_kerja,
-    }
   
