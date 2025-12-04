@@ -11,26 +11,26 @@
     <!-- Summary Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Customer</h6>
-                    <h2 class="text-primary">{{ report.total_customer }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #6f4e37 0%, #8b6142 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Customer</h6>
+                    <h2>{{ report.total_customer }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Saldo Semua Customer</h6>
-                    <h2 class="text-success">{{ report.total_saldo_semua_customer }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #8b6142 0%, #a47551 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Saldo Semua Customer</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.total_saldo_semua_customer }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Rata-rata Saldo</h6>
-                    <h2 class="text-warning">{{ report.rata_rata_saldo }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #c7a17a 0%, #d4b594 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Rata-rata Saldo</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.rata_rata_saldo }}</h2>
                 </div>
             </div>
         </div>
@@ -38,8 +38,8 @@
 
     <!-- Best Customer Card -->
     {% if report.customer_terbaik %}
-    <div class="card stat-card mb-4 border-success">
-        <div class="card-header bg-success text-white">
+    <div class="card stat-card mb-4" style="border-color: #8b6142;">
+        <div class="card-header text-white" style="background-color: #8b6142;">
             <h5 class="mb-0">
                 <i class="bi bi-star-fill"></i> Customer Terbaik Bulan Ini
             </h5>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-md-4">
                     <p><strong>Jumlah Transaksi:</strong> 
-                        <span class="badge bg-success fs-6">{{ report.customer_terbaik.jumlah_transaksi }}</span>
+                        <span class="badge fs-6" style="background-color: #6f4e37;">{{ report.customer_terbaik.jumlah_transaksi }}</span>
                     </p>
                 </div>
             </div>
@@ -66,7 +66,7 @@
     <div class="card stat-card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Detail Pelanggan</h5>
-            <a href="{% url 'report:api_customer' %}" class="btn btn-sm btn-outline-primary" target="_blank">
+            <a href="{% url 'report:api_customer' %}" class="btn btn-sm" style="background-color: #6f4e37; color: #fff; border: 1px solid #6f4e37;" target="_blank">
                 <i class="bi bi-code-square"></i> API
             </a>
         </div>
@@ -88,9 +88,9 @@
                             <td><strong>{{ customer.nama }}</strong></td>
                             <td>{{ customer.saldo_saat_ini }}</td>
                             <td>{{ customer.total_top_up }}</td>
-                            <td><strong class="text-success">{{ customer.total_pembelian }}</strong></td>
+                            <td><strong style="color: #6f4e37;">{{ customer.total_pembelian }}</strong></td>
                             <td>
-                                <span class="badge bg-info">{{ customer.jumlah_transaksi }}</span>
+                                <span class="badge" style="background-color: #c7a17a;">{{ customer.jumlah_transaksi }}</span>
                             </td>
                         </tr>
                         {% endfor %}

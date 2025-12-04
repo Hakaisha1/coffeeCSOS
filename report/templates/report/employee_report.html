@@ -11,34 +11,34 @@
     <!-- Summary Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Pegawai</h6>
-                    <h2 class="text-primary">{{ report.total_pegawai }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #6f4e37 0%, #8b6142 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Pegawai</h6>
+                    <h2>{{ report.total_pegawai }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Minuman Terjual</h6>
-                    <h2 class="text-success">{{ report.total_minuman_terjual }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #8b6142 0%, #a47551 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Jam Lembur <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Jam kerja tambahan di luar jam normal"></i></h6>
+                    <h2>{{ report.total_jumlah_jam }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Jam Kerja</h6>
-                    <h2 class="text-warning">{{ report.total_jam_kerja }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #c7a17a 0%, #d4b594 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Jam Kerja <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Jam kerja normal (tidak termasuk lembur)"></i></h6>
+                    <h2>{{ report.total_jam_kerja }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Gaji</h6>
-                    <h2 class="text-info">{{ report.total_gaji_dibayarkan }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #5a3d2b 0%, #6f4e37 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Gaji</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.total_gaji_dibayarkan }}</h2>
                 </div>
             </div>
         </div>
@@ -46,8 +46,8 @@
 
     <!-- Best Employee Card -->
     {% if report.pegawai_terbaik %}
-    <div class="card stat-card mb-4 border-primary">
-        <div class="card-header bg-primary text-white">
+    <div class="card stat-card mb-4" style="border-color: #6f4e37;">
+        <div class="card-header text-white" style="background-color: #6f4e37;">
             <h5 class="mb-0">
                 <i class="bi bi-trophy-fill"></i> Pegawai Terbaik Bulan Ini
             </h5>
@@ -59,9 +59,9 @@
                     <p><strong>Posisi:</strong> {{ report.pegawai_terbaik.posisi }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Minuman Terjual:</strong> {{ report.pegawai_terbaik.minuman_terjual }}</p>
+                    <p><strong>Jam Lembur:</strong> {{ report.pegawai_terbaik.jumlah_jam }} jam</p>
                     <p><strong>Performance Score:</strong> 
-                        <span class="badge bg-success fs-6">{{ report.pegawai_terbaik.performance_score }}</span>
+                        <span class="badge fs-6" style="background-color: #8b6142;">{{ report.pegawai_terbaik.performance_score }}</span>
                     </p>
                 </div>
             </div>
@@ -73,7 +73,7 @@
     <div class="card stat-card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Detail Karyawan</h5>
-            <a href="{% url 'report:export_employee_csv' %}" class="btn btn-sm btn-outline-success">
+            <a href="{% url 'report:export_employee_csv' %}" class="btn btn-sm" style="background-color: #6f4e37; color: #fff; border: 1px solid #6f4e37;">
                 <i class="bi bi-file-earmark-excel"></i> Export CSV
             </a>
         </div>
@@ -87,9 +87,9 @@
                             <th>Posisi</th>
                             <th>Shift</th>
                             <th>Jam Kerja</th>
-                            <th>Minuman Terjual</th>
+                            <th>Jam Lembur</th>
                             <th>Gaji Pokok</th>
-                            <th>Bonus</th>
+                            <th>Bonus Lembur</th>
                             <th>Total Gaji</th>
                             <th>Performance</th>
                         </tr>
@@ -101,18 +101,18 @@
                             <td>
                                 <strong>{{ emp.nama }}</strong>
                                 {% if emp.jenis == 'barista' %}
-                                    <span class="badge bg-info">Barista</span>
+                                    <span class="badge" style="background-color: #c7a17a;">Barista</span>
                                 {% endif %}
                             </td>
                             <td>{{ emp.posisi }}</td>
-                            <td><span class="badge bg-secondary">{{ emp.shift }}</span></td>
+                            <td><span class="badge" style="background-color: #8b6142;">{{ emp.shift }}</span></td>
                             <td>{{ emp.jam_kerja }} jam</td>
-                            <td>{{ emp.minuman_terjual }}</td>
+                            <td>{{ emp.jumlah_jam }} jam</td>
                             <td>{{ emp.gaji_pokok }}</td>
                             <td>{{ emp.bonus }}</td>
                             <td><strong>{{ emp.total_gaji }}</strong></td>
                             <td>
-                                <span class="badge bg-success">{{ emp.performance_score }}</span>
+                                <span class="badge" style="background-color: #6f4e37;">{{ emp.performance_score }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -135,4 +135,14 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
 {% endblock %}

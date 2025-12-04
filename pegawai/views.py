@@ -4,55 +4,60 @@ from .models import Pegawai, Barista, Waiter, Cleaner
 from django.shortcuts import render
 
 def index(request):
-    pegawai_list= Pegawai.objects.all() 
-    barista_list= Barista.objects.all() 
-    waiter_list= Waiter.objects.all() 
-    cleaner_list= Cleaner.objects.all()
+    barista_list = Barista.objects.all()
+    waiter_list = Waiter.objects.all()
+    cleaner_list = Cleaner.objects.all()
 
     semua_pegawai = []
 
-    for peg in pegawai_list:
-        peg.total_gaji = peg.jam_kerja * peg.gaji_per_jam
+    for b in barista_list:
+        b.total_gaji = b.jam_kerja * b.gaji_per_jam + b.jumlah_jam * b.bonus_per_jam
+        semua_pegawai.append({
+            "id_pegawai": b.id_pegawai,
+            "nama": b.nama,
+            "posisi": "Barista",
+            "shift": b.shift,
+            "gaji_per_jam": b.gaji_per_jam,
+            "jam_kerja": b.jam_kerja,
+            "total_gaji": b.total_gaji,
+            "jenis": "barista",
+        })
 
-    for bar in barista_list:
-        gaji_dasar = bar.jam_kerja * bar.gaji_per_jam
-        bonus = bar.jumlah_jam * bar.bonus_per_jam
-        bar.total_gaji = gaji_dasar + bonus
-        bar.posisi = "Barista"
-        bar.is_barista = True
-        bar.is_waiter = False
-        bar.is_cleaner = False
-        semua_pegawai.append(bar)
+    for w in waiter_list:
+        w.total_gaji = w.jam_kerja * w.gaji_per_jam + w.jumlah_jam * w.bonus_per_jam
+        semua_pegawai.append({
+            "id_pegawai": w.id_pegawai,
+            "nama": w.nama,
+            "posisi": "Waiter",
+            "shift": w.shift,
+            "gaji_per_jam": w.gaji_per_jam,
+            "jam_kerja": w.jam_kerja,
+            "total_gaji": w.total_gaji,
+            "jenis": "waiter",
+        })
 
-    for wait in waiter_list:
-        gaji_dasar = bar.jam_kerja * bar.gaji_per_jam
-        bonus = wait.jam_kerja * bar.bonus_per_jam
-        wait.total_gaji = gaji_dasar + bonus
-        wait.posisi = "Waiter"
-        wait.is_barista = False
-        wait.is_waiter = True
-        wait.is_cleaner = False
-        semua_pegawai.append(wait)
-        
-    for clean in cleaner_list:
-        gaji_dasar = bar.jam_kerja * bar.gaji_per_jam
-        bonus = clean.jam_kerja * bar.bonus_per_jam
-        clean.total_gaji = gaji_dasar + bonus
-        clean.posisi = "Cleaner"
-        clean.is_barista = False
-        clean.is_waiter = False
-        clean.is_cleaner = True
-        semua_pegawai.append(clean)
+    for c in cleaner_list:
+        c.total_gaji = c.jam_kerja * c.gaji_per_jam + c.jumlah_jam * c.bonus_per_jam
+        semua_pegawai.append({
+            "id_pegawai": c.id_pegawai,
+            "nama": c.nama,
+            "posisi": "Cleaner",
+            "shift": c.shift,
+            "gaji_per_jam": c.gaji_per_jam,
+            "jam_kerja": c.jam_kerja,
+            "total_gaji": w.total_gaji,
+            "jenis": "cleaner",
+        })
 
     context = {
-        'pegawai_list': pegawai_list,
+        'semua_pegawai': semua_pegawai,
         'barista_list': barista_list,
         'waiter_list': waiter_list,
         'cleaner_list': cleaner_list,
         'total_pegawai': len(semua_pegawai),
-        'total_barista': len(barista_list),
-        'total_waiter': len(waiter_list),
-        'total_cleaner': len(cleaner_list)
+        'total_barista': barista_list.count(),
+        'total_waiter': waiter_list.count(),
+        'total_cleaner': cleaner_list.count(),
     }
     return render(request, 'pegawai/index.html', context)
 
