@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supplier Logistik</title>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+
     <style>
         :root {
             --primary-color: #6f4e37;
@@ -33,7 +36,7 @@
 
         .sidebar h2 {
             margin-top: 0;
-            text-align: center;
+            
         }
 
         .sidebar a {
@@ -104,7 +107,10 @@
 <body>
 
     <div class="sidebar">
-        <h2>Manajer Logistik</h2>
+        <h2 style=" font-size:34px; color: var(--accent-color); margin-bottom:20px;">
+            <i class="bi bi-cup-hot-fill"></i> CSOC
+        </h2>
+
 
         <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
         <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
