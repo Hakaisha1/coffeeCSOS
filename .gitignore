@@ -20,6 +20,8 @@ env/
 ENV/
 .venv/
 
+staticfiles/
+
 # IDE
 .vscode/
 .idea/
