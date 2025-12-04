@@ -1,0 +1,101 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kasir CoffeeCSOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<header class="bg-green-700 text-white p-4 text-3xl font-bold text-center shadow">
+    CoffeeCSOS - Kasir
+</header>
+
+<nav class="bg-white shadow-md p-2 flex justify-center space-x-6 mb-6">
+    <a href="{% url 'menu' %}" class="text-green-700 font-semibold border-b-2 border-green-700">Pesanan</a>
+    <a href="{% url 'tambah_menu' %}" class="text-gray-600 hover:text-green-700">Tambah Menu</a> <!-- ini ditambahkan -->
+    <a href="{% url 'customer_riwayat' %}" class="text-gray-600 hover:text-green-700">Riwayat</a>
+</nav>
+
+<div class="container mx-auto flex flex-col md:flex-row gap-6 px-4">
+    <!-- Daftar Menu -->
+    <div class="flex-1">
+        <h2 class="text-2xl font-bold mb-4 text-gray-700">Daftar Menu</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for item in menu %}
+            <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-4 flex flex-col justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">{{ item.nama }}</h3>
+                <p class="text-green-700 font-bold text-lg mb-2">Rp{{ item.harga|intcomma }}</p>
+                <form method="post" class="mt-auto flex items-center gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <!--<input type="number" name="qty" value="1" min="1" class="border rounded w-16 p-1 text-center">-->
+                    <button type="submit" name="add_item" class="bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800 transition">Tambah</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+<!-- Keranjang -->
+<div class="w-full md:w-1/3 bg-white p-4 rounded shadow h-fit">
+    <h2 class="text-xl font-bold mb-2">Keranjang</h2>
+
+    {% if error %}
+        <p class="text-red-600 mb-2">{{ error }}</p>
+    {% endif %}
+    {% if success %}
+        <p class="text-green-600 mb-2">{{ success }}</p>
+    {% endif %}
+
+    {% if cart %}
+        <ul class="divide-y divide-gray-200 mb-4 max-h-80 overflow-y-auto">
+            {% for item in cart %}
+                <li class="py-2 flex justify-between items-center">
+                    <div class="flex flex-col">
+                        <span class="text-gray-800 font-medium">{{ item.nama }}</span>
+                        <span class="text-gray-600 text-sm">Jumlah: {{ item.qty }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-700 font-semibold">Rp{{ item.total|intcomma }}</span>
+
+                        <!-- Form hapus item -->
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <button type="submit" name="hapus_item" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Hapus</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <p class="font-bold text-lg mb-4 text-gray-900">Total: Rp{{ total_bayar|intcomma }}</p>
+
+        <!-- Form checkout -->
+        <form method="post">
+            {% csrf_token %}
+            <label class="block mb-1 font-semibold text-gray-700">Nama Customer:</label>
+            <input type="text" name="nama" required class="w-full border p-2 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+
+            <label class="block mb-1 font-semibold text-gray-700">Uang Bayar:</label>
+            <input type="number" name="bayar" required class="w-full border p-2 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-green-500">
+
+            <button type="submit" name="checkout" class="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800 transition font-semibold">Bayar</button>
+
+            {% if kembalian != None %}
+                <p class="mt-2 font-semibold text-gray-900">Kembalian: Rp{{ kembalian|intcomma }}</p>
+            {% endif %}
+        </form>
+    {% else %}
+        <p>Keranjang kosong</p>
+    {% endif %}
+</div>
+
+
+
+
+</body>
+</html>
