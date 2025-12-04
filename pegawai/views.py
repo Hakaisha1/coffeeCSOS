@@ -1,7 +1,9 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .models import Pegawai, Barista, Waiter, Cleaner
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.http import require_POST
 
 def index(request):
     barista_list = Barista.objects.all()
@@ -60,6 +62,50 @@ def index(request):
         'total_cleaner': cleaner_list.count(),
     }
     return render(request, 'pegawai/index.html', context)
+
+
+model_map = {
+    'barista': Barista,
+    'waiter': Waiter,
+    'cleaner': Cleaner,
+}
+
+@require_POST
+def add_employee(request):
+    jenis = request.POST.get('jenis')
+    Model = model_map.get(jenis)
+    if not Model:
+        messages.error(request, 'Jenis pegawai tidak valid')
+        return redirect('pegawai:pegawai_index')
+
+    Model.objects.create(
+        id_pegawai=request.POST.get('id_pegawai'),
+        nama=request.POST.get('nama'),
+        shift=request.POST.get('shift'),
+        gaji_per_jam=request.POST.get('gaji_per_jam'),
+        bonus_per_jam=request.POST.get('bonus_per_jam'),
+        jam_kerja=request.POST.get('jam_kerja') or 0,
+        jumlah_jam=request.POST.get('jumlah_jam') or 0,
+    )
+    messages.success(request, f'{jenis.title()} baru ditambahkan.')
+    return redirect('pegawai:pegawai_index')
+
+
+@require_POST
+def delete_employee(request):
+    jenis = request.POST.get('jenis')
+    Model = model_map.get(jenis)
+    if not Model:
+        messages.error(request, 'Jenis pegawai tidak valid')
+        return redirect('pegawai:pegawai_index')
+
+    id_pegawai = request.POST.get('id_pegawai')
+    deleted, _ = Model.objects.filter(id_pegawai=id_pegawai).delete()
+    if deleted:
+        messages.success(request, f'{jenis.title()} {id_pegawai} dihapus.')
+    else:
+        messages.warning(request, 'ID pegawai tidak ditemukan.')
+    return redirect('pegawai:pegawai_index')
 
 @require_http_methods(["GET"])
 def list_pegawai(request):
