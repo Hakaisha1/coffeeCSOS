@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">Tambah Menu Baru</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="text-red-600 mb-2">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label class="block font-semibold mb-1">Nama Menu:</label>
+        <input type="text" name="nama" class="w-full border p-2 rounded mb-3" required>
+
+        <label class="block font-semibold mb-1">Harga:</label>
+        <input type="number" name="harga" class="w-full border p-2 rounded mb-3" required>
+
+        <label class="block font-semibold mb-1">Bahan (satu per baris):</label>
+        <textarea name="bahan" class="w-full border p-2 rounded mb-3" rows="5" placeholder="Contoh:\nBiji Kopi\nSusu\nGula" required></textarea>
+
+        <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800">Tambah Menu</button>
+    </form>
+</div>
+
+</body>
+</html>

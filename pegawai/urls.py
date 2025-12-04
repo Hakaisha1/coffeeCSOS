@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.index, name='pegawai_index'),
     
     # Data pegawai berdasarkan ID
+    path('employee/delete/', views.delete_employee, name='delete_pegawai'),
     path('api/pegawai/<str:id_pegawai>/', views.detail_pegawai, name='detail_pegawai'),
     path('api/pegawai/create/', views.create_pegawai, name='create_pegawai'),
     path('api/pegawai/update/<str:id_pegawai>/', views.update_pegawai, name='update_pegawai'),
