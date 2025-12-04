@@ -1,21 +1,20 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.db.models import Sum
+from datetime import date
+
 from .models import Barang, Supplier
 from .logistik import Barang as BarangOOP, Supplier as SupplierOOP
 from .logistik import Gudang, LogistikManager
-from datetime import date
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from core.decorator import role_required
 
 
-@login_required
-@role_required('IM')
+# =============================
+# PROSES STOK (OOP LOGIC)
+# =============================
 def proses_stok(request, id_barang):
-    # 1. Ambil dari database
     barang_model = Barang.objects.get(id=id_barang)
 
-    # 2. Convert ke object OOP
+    # Convert ke OOP
     barang_oop = BarangOOP(
         barang_model.nama,
         barang_model.stok,
@@ -23,11 +22,9 @@ def proses_stok(request, id_barang):
         barang_model.kadaluarsa
     )
 
-    # 3. Buat gudang OOP
     gudang = Gudang()
     gudang.tambah_barang(barang_oop)
 
-    # 4. Buat manager dan jalankan logika OOP
     manager = LogistikManager(gudang)
     manager.beli_barang(
         supplier=SupplierOOP("Supplier Default", "08123xxx"),
@@ -36,31 +33,58 @@ def proses_stok(request, id_barang):
         tanggal=str(date.today())
     )
 
-    # 5. Kembalikan hasil ke database
+    # Simpan perubahan ke DB
     barang_model.stok = barang_oop.stok
     barang_model.save()
 
     return HttpResponse("Transaksi berhasil diproses.")
 
 
-@login_required
-@role_required('IM')
-def daftar_barang(request):
-    data = Barang.objects.all()
-    return render(request, "logistik/nyoba.html", {"barang_list": data})
+# =============================
+# DASHBOARD LOGISTIK
+# =============================
+def dashboard_logistik(request):
+    total_barang = Barang.objects.count()
+    total_stok = Barang.objects.aggregate(total=Sum('stok'))['total'] or 0
+    barang_hampir_habis = Barang.objects.filter(stok__lte=5).count()
 
-@login_required
-@role_required('IM')
+    barang_list = Barang.objects.all()[:5]  # contoh menampilkan 5 barang teratas
+
+    context = {
+        "total_barang": total_barang,
+        "total_stok": total_stok,
+        "barang_hampir_habis": barang_hampir_habis,
+        "barang_list": barang_list,
+    }
+
+    return render(request, "logistik/dashboardlogis.html", context)
+
+
+# =============================
+# DAFTAR BARANG
+# =============================
+def daftar_barang(request):
+    barang = Barang.objects.all()
+
+    context = {
+        "barang_list": barang,
+    }
+    return render(request, "logistik/daftar_barang.html", context)
+
+
+# =============================
+# TAMBAH BARANG
+# =============================
 def tambah_barang(request):
     if request.method == "POST":
         nama = request.POST.get("nama")
-        stok = request.POST.get("stok")
-        harga = request.POST.get("harga")
+        stok = int(request.POST.get("stok"))
+        harga = int(request.POST.get("harga"))
 
         Barang.objects.create(
             nama=nama,
-            stok=int(stok),
-            harga=int(harga),
+            stok=stok,
+            harga=harga,
         )
 
         return redirect("daftar_barang")
