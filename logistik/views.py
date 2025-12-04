@@ -7,7 +7,7 @@ from .models import Barang, Supplier
 from .logistik import Barang as BarangOOP, Supplier as SupplierOOP
 from .logistik import Gudang, LogistikManager
 
-
+from django.http import JsonResponse
 
 # =============================
 # PROSES STOK (OOP LOGIC)
@@ -110,3 +110,30 @@ def tambah_barang(request):
         return redirect("daftar_barang")
 
     return render(request, "logistik/tambah_barang.html")
+
+
+def api_barang(request):
+    data = list(Barang.objects.values())
+    return JsonResponse({"barang": data})
+
+def api_dashboard(request):
+    total_barang = Barang.objects.count()
+    total_stok = sum(b.stok for b in Barang.objects.all())
+    barang_kosong = Barang.objects.filter(stok=0).count()
+
+    return JsonResponse({
+        "total_barang": total_barang,
+        "total_stok": total_stok,
+        "barang_kosong": barang_kosong
+    })
+
+
+def supplier(request):
+    supplier_list = Supplier.objects.all()
+    return render(request, "logistik/supllier.html", {
+        "supplier_list": supplier_list
+    })
+
+def api_supplier(request):
+    data = list(Supplier.objects.values())
+    return JsonResponse({"supplier": data})

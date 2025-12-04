@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Barang - Logistik</title>
+    <title>Supplier Logistik</title>
+
     <style>
         :root {
             --primary-color: #6f4e37;
@@ -74,8 +76,6 @@
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
-            display: inline-block;
-            margin-bottom: 15px;
         }
 
         .btn:hover {
@@ -99,75 +99,77 @@
             background: var(--primary-color);
             color: var(--text-light);
         }
-
-        table td {
-            background-color: #fffaf3;
-        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2>Manajer Logistik</h2>
+
         <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
         <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
         <a href="{% url 'supplier' %}">Supplier</a>
     </div>
 
     <div class="main-content">
-        <div class="card">
-            <h3>📦 Daftar Barang Logistik</h3>
 
-            <a href="{% url 'tambah_barang' %}" class="btn">+ Tambah Barang</a>
+        <div class="card">
+            <h3>Master Supplier</h3>
+            <a  class="btn">+ Tambah Supplier</a>
+        </div>
+
+        <div class="card">
+            <h3>Daftar Supplier</h3>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Nama</th>
-                        <th>Stok</th>
-                        <th>Kadaluarsa</th>
-                        <th>Harga</th>
-                        <th>Edit</th>
+                        <th>Nama Supplier</th>
+                        <th>Kontak</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
 
-                <tbody id="tbody-barang">
-                    {% for b in barang_list %}
+                <tbody id="tbody-supplier">
+                    {% for s in supplier_list %}
                     <tr>
-                        <td>{{ b.nama }}</td>
-                        <td>{{ b.stok }}</td>
-                        <td>{{ b.kadaluarsa|default:"-" }}</td>
-                        <td>Rp {{ b.harga }}</td>
+                        <td>{{ s.nama }}</td>
+                        <td>{{ s.kontak }}</td>
+                        <td>
+                            <a href="#" class="btn">Edit</a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
         </div>
+
     </div>
 
     <script>
-    function loadBarang() {
-        fetch("{% url 'api_barang' %}")
+    // OPTIONAL — auto refresh supplier seperti barang
+    function loadSupplier() {
+        fetch("{% url 'api_supplier' %}")
         .then(res => res.json())
         .then(data => {
-            let tbody = document.getElementById("tbody-barang");
+            let tbody = document.getElementById("tbody-supplier");
             tbody.innerHTML = "";
 
-            data.barang.forEach(item => {
+            data.supplier.forEach(s => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${item.nama}</td>
-                        <td>${item.stok}</td>
-                        <td>${item.kadaluarsa || "-"}</td>
-                        <td>Rp ${item.harga}</td>
+                        <td>${s.nama}</td>
+                        <td>${s.kontak}</td>
+                        <td><a href="#" class="btn">Edit</a></td>
                     </tr>
                 `;
             });
         });
     }
 
-    // Auto refresh setiap 2 detik menggunakan AJAX
-    setInterval(loadBarang, 2000);
+    // Auto refresh setiap 2 detik
+    setInterval(loadSupplier, 2000);
     </script>
 
 </body>

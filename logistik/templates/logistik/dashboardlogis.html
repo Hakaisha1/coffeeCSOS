@@ -106,41 +106,67 @@
         <h2>Manajer Logistik</h2>
         <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
         <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
-        <a href="{% url 'tambah_barang' %}">Tambah Barang</a>
-        <a href="#">Supplier</a>
+        <a href="{% url 'supplier' %}">Supplier</a>
     </div>
 
     <div class="main-content">
         <div class="card">
             <h3>Ringkasan Stok</h3>
-            <p>Total barang saat ini: <strong>{{ total_barang }} item</strong></p>
+            <p>Total barang saat ini: <strong id="total-barang">{{ total_barang }}</strong> item</p>
             <a href="{% url 'daftar_barang' %}" class="btn">Lihat Detail</a>
         </div>
 
         <div class="card">
-            <h3>Daftar Barang</h3>
+            <h3>Daftar Barang (Auto Refresh)</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Nama Barang</th>
                         <th>Stok</th>
-                        <th>kadaluarsa</th>
-                        <th>harga</th>
+                        <th>Kadaluarsa</th>
+                        <th>Harga</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody-dashboard-barang">
                     {% for b in barang_list %}
                     <tr>
                         <td>{{ b.nama }}</td>
-                        <td>{{ b.kategori }}</td>
                         <td>{{ b.stok }}</td>
-                        <td><a href="{% url 'edit_barang' b.id %}" class="btn">Edit</a></td>
+                        <td>{{ b.kadaluarsa }}</td>
+                        <td>Rp {{ b.harga }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <script>
+    function loadDashboardBarang() {
+        fetch("{% url 'api_barang' %}")
+        .then(res => res.json())
+        .then(data => {
+            let tbody = document.getElementById("tbody-dashboard-barang");
+            let total = document.getElementById("total-barang");
+
+            tbody.innerHTML = "";
+            data.barang.forEach(i => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${i.nama}</td>
+                        <td>${i.stok}</td>
+                        <td>${i.kadaluarsa || "-"}</td>
+                        <td>Rp ${i.harga}</td>
+                    </tr>
+                `;
+            });
+
+            total.innerHTML = data.barang.length;
+        });
+    }
+
+    setInterval(loadDashboardBarang, 2000);
+    </script>
 
 </body>
 </html>
