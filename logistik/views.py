@@ -8,6 +8,7 @@ from .logistik import Barang as BarangOOP, Supplier as SupplierOOP
 from .logistik import Gudang, LogistikManager
 
 from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
 
 # =============================
 # PROSES STOK (OOP LOGIC)
@@ -99,12 +100,22 @@ def tambah_barang(request):
     if request.method == "POST":
         nama = request.POST.get("nama")
         stok = int(request.POST.get("stok"))
+        kadaluarsa = request.POST.get("kadaluarsa")
         harga = int(request.POST.get("harga"))
+        
+        # Validasi kadaluarsa: harus kosong atau format tanggal yang benar
+        if kadaluarsa and len(kadaluarsa.strip()) > 0:
+            # Cek apakah format valid (minimal ada dash untuk YYYY-MM-DD)
+            if '-' not in kadaluarsa:
+                kadaluarsa = None
+        else:
+            kadaluarsa = None
 
         Barang.objects.create(
             nama=nama,
             stok=stok,
             harga=harga,
+            kadaluarsa=kadaluarsa,
         )
 
         return redirect("daftar_barang")
@@ -137,3 +148,16 @@ def supplier(request):
 def api_supplier(request):
     data = list(Supplier.objects.values())
     return JsonResponse({"supplier": data})
+
+def edit_barang(request, id_barang):
+    barang = get_object_or_404(Barang, id=id_barang)
+
+    if request.method == "POST":
+        barang.nama = request.POST.get("nama")
+        barang.stok = request.POST.get("stok")
+        barang.harga = request.POST.get("harga")
+        barang.save()
+
+        return redirect("daftar_barang")
+
+    return render(request, "logistik/edit_barang.html", {"barang": barang})
