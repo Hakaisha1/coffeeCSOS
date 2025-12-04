@@ -33,5 +33,6 @@ urlpatterns = [
     # path('pegawai/', include('pegawai.urls')),
     
     path('logistik/', include('logistik.urls')),
+    path('', include('core.urls')),
 
 ]
