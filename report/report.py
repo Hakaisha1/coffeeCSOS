@@ -14,8 +14,7 @@ from typing import List, Dict
 from collections import defaultdict
 from decimal import Decimal
 
-# Import models dari setiap subsistem
-from pegawai.models import Pegawai, Barista
+from pegawai.models import Pegawai, Barista, Waiter, Cleaner
 from customer.models import Customer, MenuItem, Riwayat
 from django.db.models import Sum, Count, Q
 
@@ -45,14 +44,14 @@ class EmployeeReport(Report):
         self.best_employee = None
         self.employee_stats = []
 
-    def generate(self):
-        """Generate laporan pegawai dari database"""
-        # Ambil semua pegawai biasa
+    def generate(self):        
+        # Ambil semua tipe pegawai
         pegawai_list = Pegawai.objects.all()
-        # Ambil semua barista
         barista_list = Barista.objects.all()
+        waiter_list = Waiter.objects.all()
+        cleaner_list = Cleaner.objects.all()
         
-        if not pegawai_list.exists() and not barista_list.exists():
+        if not (pegawai_list.exists() or barista_list.exists() or waiter_list.exists() or cleaner_list.exists()):
             self.content = {'message': 'Tidak ada data karyawan'}
             return self.content
         
@@ -68,7 +67,7 @@ class EmployeeReport(Report):
                 'posisi': emp.posisi,
                 'shift': emp.shift,
                 'jam_kerja': emp.jam_kerja,
-                'minuman_terjual': 0,
+                'jumlah_jam': 0,
                 'gaji_pokok': gaji_pokok,
                 'bonus': 0,
                 'total_gaji': gaji_pokok,
@@ -80,9 +79,9 @@ class EmployeeReport(Report):
         # Process Barista
         for bar in barista_list:
             gaji_pokok = float(bar.gaji_per_jam) * bar.jam_kerja
-            bonus = float(bar.bonus_per_minuman) * bar.minuman_terjual
+            bonus = float(bar.bonus_per_jam) * bar.jumlah_jam
             total_gaji = gaji_pokok + bonus
-            performance = (bar.minuman_terjual * 10) + (bar.jam_kerja * 5)
+            performance = (bar.jumlah_jam * 10) + (bar.jam_kerja * 5)
 
             employee_data = {
                 'id_pegawai': bar.id_pegawai,
@@ -90,7 +89,7 @@ class EmployeeReport(Report):
                 'posisi': 'Barista',
                 'shift': bar.shift,
                 'jam_kerja': bar.jam_kerja,
-                'minuman_terjual': bar.minuman_terjual,
+                'jumlah_jam': bar.jumlah_jam,
                 'gaji_pokok': gaji_pokok,
                 'bonus': bonus,
                 'total_gaji': total_gaji,
@@ -99,26 +98,72 @@ class EmployeeReport(Report):
             }
             self.employee_stats.append(employee_data)
         
+        # Process Waiter
+        for waiter in waiter_list:
+            gaji_pokok = float(waiter.gaji_per_jam) * waiter.jam_kerja
+            bonus = float(waiter.bonus_per_jam) * waiter.jumlah_jam
+            total_gaji = gaji_pokok + bonus
+            performance = (waiter.jumlah_jam * 10) + (waiter.jam_kerja * 5)
+
+            employee_data = {
+                'id_pegawai': waiter.id_pegawai,
+                'nama': waiter.nama,
+                'posisi': 'Waiter',
+                'shift': waiter.shift,
+                'jam_kerja': waiter.jam_kerja,
+                'jumlah_jam': waiter.jumlah_jam,
+                'gaji_pokok': gaji_pokok,
+                'bonus': bonus,
+                'total_gaji': total_gaji,
+                'performance_score': performance,
+                'jenis': 'waiter'
+            }
+            self.employee_stats.append(employee_data)
+        
+        # Process Cleaner
+        for cleaner in cleaner_list:
+            gaji_pokok = float(cleaner.gaji_per_jam) * cleaner.jam_kerja
+            bonus = float(cleaner.bonus_per_jam) * cleaner.jumlah_jam
+            total_gaji = gaji_pokok + bonus
+            performance = (cleaner.jumlah_jam * 10) + (cleaner.jam_kerja * 5)
+
+            employee_data = {
+                'id_pegawai': cleaner.id_pegawai,
+                'nama': cleaner.nama,
+                'posisi': 'Cleaner',
+                'shift': cleaner.shift,
+                'jam_kerja': cleaner.jam_kerja,
+                'jumlah_jam': cleaner.jumlah_jam,
+                'gaji_pokok': gaji_pokok,
+                'bonus': bonus,
+                'total_gaji': total_gaji,
+                'performance_score': performance,
+                'jenis': 'cleaner'
+            }
+            self.employee_stats.append(employee_data)
+        
         # Sort by performance
         self.employee_stats.sort(key=lambda x: x['performance_score'], reverse=True)
         self.best_employee = self.employee_stats[0] if self.employee_stats else None
 
         # Calculate aggregates
-        total_minuman = sum(stat['minuman_terjual'] for stat in self.employee_stats)
-        total_jam = sum(stat['jam_kerja'] for stat in self.employee_stats)
+        total_jam_lembur = sum(stat['jumlah_jam'] for stat in self.employee_stats)
+        total_jam_kerja = sum(stat['jam_kerja'] for stat in self.employee_stats)
         total_gaji = sum(stat['total_gaji'] for stat in self.employee_stats)
+        total_bonus_lembur = sum(stat['bonus'] for stat in self.employee_stats)
         
         self.content = {
             'total_pegawai': len(self.employee_stats),
-            'total_minuman_terjual': total_minuman,
-            'total_jam_kerja': total_jam,
+            'total_jumlah_jam': total_jam_lembur,  # Total jam lembur semua pegawai
+            'total_jam_kerja': total_jam_kerja,    # Total jam kerja normal
             'total_gaji_dibayarkan': f"Rp {total_gaji:,.0f}",
-            'rata_rata_minuman_per_pegawai': total_minuman / len(self.employee_stats) if len(self.employee_stats) > 0 else 0,
+            'total_bonus_lembur': f"Rp {total_bonus_lembur:,.0f}",
+            'rata_rata_jumlah_jam': total_jam_lembur / len(self.employee_stats) if len(self.employee_stats) > 0 else 0,
             'pegawai_terbaik': {
                 'id_pegawai': self.best_employee['id_pegawai'],
                 'nama': self.best_employee['nama'],
                 'posisi': self.best_employee['posisi'],
-                'minuman_terjual': self.best_employee['minuman_terjual'],
+                'jumlah_jam': self.best_employee['jumlah_jam'],
                 'performance_score': self.best_employee['performance_score']
             } if self.best_employee else None,
             'detail_pegawai': [
@@ -128,7 +173,7 @@ class EmployeeReport(Report):
                     'posisi': emp['posisi'],
                     'shift': emp['shift'],
                     'jam_kerja': emp['jam_kerja'],
-                    'minuman_terjual': emp['minuman_terjual'],
+                    'jumlah_jam': emp['jumlah_jam'],
                     'gaji_pokok': f"Rp {emp['gaji_pokok']:,.0f}",
                     'bonus': f"Rp {emp['bonus']:,.0f}",
                     'total_gaji': f"Rp {emp['total_gaji']:,.0f}",
@@ -296,16 +341,144 @@ class SalesReport(Report):
 
 
 class InventoryReport(Report):
-    """Laporan Inventory/Logistik (placeholder - menunggu models logistik)"""
+    """Laporan Inventory/Logistik"""
     def __init__(self):
         super().__init__("Laporan Inventory")
 
     def generate(self):
-
+        """Generate laporan inventory dari database logistik"""
+        # Import models logistik
+        from logistik.models import Barang, Supplier
+        from datetime import date, timedelta
+        
+        barang_list = Barang.objects.all()
+        supplier_list = Supplier.objects.all()
+        
+        if not barang_list.exists():
+            self.content = {
+                'message': 'Tidak ada data barang di inventory',
+                'total_barang': 0,
+                'total_stok': 0,
+                'total_nilai_inventory': 'Rp 0',
+                'detail_barang': [],
+                'barang_hampir_habis': [],
+                'barang_kadaluarsa': [],
+                'supplier_list': []
+            }
+            return self.content
+        
+        # Analisis barang
+        barang_stats = []
+        total_nilai = 0
+        barang_hampir_habis = []
+        barang_kadaluarsa = []
+        
+        # Threshold untuk warning
+        STOK_MINIMUM = 10
+        HARI_KADALUARSA_WARNING = 30
+        today = date.today()
+        
+        for barang in barang_list:
+            nilai_total = barang.stok * barang.harga
+            total_nilai += nilai_total
+            
+            # Cek status
+            status = 'Normal'
+            warnings = []
+            
+            # Cek stok rendah
+            if barang.stok < STOK_MINIMUM:
+                status = 'Stok Rendah'
+                warnings.append('Stok hampir habis')
+                barang_hampir_habis.append({
+                    'nama': barang.nama,
+                    'stok': barang.stok,
+                    'minimum': STOK_MINIMUM
+                })
+            
+            # Cek kadaluarsa
+            hari_sampai_kadaluarsa = None
+            if barang.kadaluarsa:
+                hari_sampai_kadaluarsa = (barang.kadaluarsa - today).days
+                if hari_sampai_kadaluarsa <= 0:
+                    status = 'Kadaluarsa'
+                    warnings.append('Sudah kadaluarsa')
+                    barang_kadaluarsa.append({
+                        'nama': barang.nama,
+                        'kadaluarsa': barang.kadaluarsa.strftime('%Y-%m-%d'),
+                        'hari': hari_sampai_kadaluarsa
+                    })
+                elif hari_sampai_kadaluarsa <= HARI_KADALUARSA_WARNING:
+                    if status == 'Normal':
+                        status = 'Hampir Kadaluarsa'
+                    warnings.append(f'Kadaluarsa dalam {hari_sampai_kadaluarsa} hari')
+                    barang_kadaluarsa.append({
+                        'nama': barang.nama,
+                        'kadaluarsa': barang.kadaluarsa.strftime('%Y-%m-%d'),
+                        'hari': hari_sampai_kadaluarsa
+                    })
+            
+            barang_data = {
+                'id': barang.id,
+                'nama': barang.nama,
+                'stok': barang.stok,
+                'harga': barang.harga,
+                'nilai_total': nilai_total,
+                'kadaluarsa': barang.kadaluarsa.strftime('%Y-%m-%d') if barang.kadaluarsa else 'N/A',
+                'hari_sampai_kadaluarsa': hari_sampai_kadaluarsa,
+                'status': status,
+                'warnings': warnings
+            }
+            barang_stats.append(barang_data)
+        
+        # Sort by nilai total (descending)
+        barang_stats.sort(key=lambda x: x['nilai_total'], reverse=True)
+        
+        # Barang dengan nilai tertinggi
+        barang_nilai_tertinggi = barang_stats[0] if barang_stats else None
+        
+        # Supplier list
+        supplier_data = [
+            {
+                'id': sup.id,
+                'nama': sup.nama,
+                'kontak': sup.kontak
+            }
+            for sup in supplier_list
+        ]
+        
         self.content = {
-            'message': 'Laporan inventory belum tersedia',
-            'note': 'Menunggu implementasi model Barang, Supplier, TransaksiPembelian di app logistik'
+            'total_barang': len(barang_stats),
+            'total_stok': sum(b['stok'] for b in barang_stats),
+            'total_nilai_inventory': f"Rp {total_nilai:,}",
+            'barang_nilai_tertinggi': {
+                'nama': barang_nilai_tertinggi['nama'],
+                'stok': barang_nilai_tertinggi['stok'],
+                'nilai_total': f"Rp {barang_nilai_tertinggi['nilai_total']:,}"
+            } if barang_nilai_tertinggi else None,
+            'warning_summary': {
+                'barang_stok_rendah': len(barang_hampir_habis),
+                'barang_hampir_kadaluarsa': len([b for b in barang_kadaluarsa if b['hari'] > 0]),
+                'barang_sudah_kadaluarsa': len([b for b in barang_kadaluarsa if b['hari'] <= 0])
+            },
+            'detail_barang': [
+                {
+                    'nama': b['nama'],
+                    'stok': b['stok'],
+                    'harga': f"Rp {b['harga']:,}",
+                    'nilai_total': f"Rp {b['nilai_total']:,}",
+                    'kadaluarsa': b['kadaluarsa'],
+                    'status': b['status'],
+                    'warnings': ', '.join(b['warnings']) if b['warnings'] else '-'
+                }
+                for b in barang_stats
+            ],
+            'barang_hampir_habis': barang_hampir_habis,
+            'barang_kadaluarsa': sorted(barang_kadaluarsa, key=lambda x: x['hari']),
+            'total_supplier': len(supplier_data),
+            'supplier_list': supplier_data
         }
+        
         return self.content
         
 
@@ -389,49 +562,49 @@ class ReportManager:
         return f"Report berhasil di-export ke {filename}"
 
 
-# === MAIN EXECUTION (untuk testing) ===
-if __name__ == '__main__':
-    print("="*60)
-    print("COFFEE SHOP REPORTING SYSTEM")
-    print("="*60)
+# # === MAIN EXECUTION (untuk testing) ===
+# if __name__ == '__main__':
+#     print("="*60)
+#     print("COFFEE SHOP REPORTING SYSTEM")
+#     print("="*60)
     
-    manager = ReportManager()
+#     manager = ReportManager()
     
-    try:
-        # Test Employee Report
-        print("\n1. EMPLOYEE REPORT")
-        print("-" * 60)
-        emp_report = manager.get_report('employee')
-        print(json.dumps(emp_report.content, indent=2, ensure_ascii=False))
+#     try:
+#         # Test Employee Report
+#         print("\n1. EMPLOYEE REPORT")
+#         print("-" * 60)
+#         emp_report = manager.get_report('employee')
+#         print(json.dumps(emp_report.content, indent=2, ensure_ascii=False))
         
-        # Test Customer Report
-        print("\n2. CUSTOMER REPORT")
-        print("-" * 60)
-        cust_report = manager.get_report('customer')
-        print(json.dumps(cust_report.content, indent=2, ensure_ascii=False))
+#         # Test Customer Report
+#         print("\n2. CUSTOMER REPORT")
+#         print("-" * 60)
+#         cust_report = manager.get_report('customer')
+#         print(json.dumps(cust_report.content, indent=2, ensure_ascii=False))
         
-        # Test Sales Report
-        print("\n3. SALES REPORT")
-        print("-" * 60)
-        sales_report = manager.get_report('sales')
-        print(json.dumps(sales_report.content, indent=2, ensure_ascii=False))
+#         # Test Sales Report
+#         print("\n3. SALES REPORT")
+#         print("-" * 60)
+#         sales_report = manager.get_report('sales')
+#         print(json.dumps(sales_report.content, indent=2, ensure_ascii=False))
         
-        # Export all to JSON
-        print("\n4. EXPORT TO JSON")
-        print("-" * 60)
-        result = manager.export_to_json('coffee_reports.json')
-        print(result)
+#         # Export all to JSON
+#         print("\n4. EXPORT TO JSON")
+#         print("-" * 60)
+#         result = manager.export_to_json('coffee_reports.json')
+#         print(result)
         
-        # Quick access functions
-        print("\n5. QUICK ACCESS")
-        print("-" * 60)
-        print("Pegawai Terbaik:", manager.get_best_employee())
-        print("Customer Terbaik:", manager.get_top_customer())
-        print("Menu Terlaris:", manager.get_best_selling_menu())
+#         # Quick access functions
+#         print("\n5. QUICK ACCESS")
+#         print("-" * 60)
+#         print("Pegawai Terbaik:", manager.get_best_employee())
+#         print("Customer Terbaik:", manager.get_top_customer())
+#         print("Menu Terlaris:", manager.get_best_selling_menu())
         
-    except Exception as e:
-        print(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         import traceback
+#         traceback.print_exc()
     
-    print("\n" + "="*60)
+#     print("\n" + "="*60)

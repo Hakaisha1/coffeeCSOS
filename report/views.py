@@ -109,9 +109,29 @@ def sales_report_view(request):
         }
         return render(request, 'report/sales_report.html', context)
 
+@login_required
+@role_required('GENERAL_MANAGER')
 def inventory_report_view(request):
     """Halaman laporan inventory"""
-    pass
+    manager = ReportManager()
+    
+    try:
+        inventory_report = manager.get_report('inventory')
+        
+        context = {
+            'page_title': 'Laporan Inventory',
+            'report': inventory_report.content,
+            'report_type': 'inventory'
+        }
+        
+        return render(request, 'report/inventory_report.html', context)
+    
+    except Exception as e:
+        context = {
+            'error': str(e),
+            'page_title': 'Laporan Inventory - Error'
+        }
+        return render(request, 'report/inventory_report.html', context)
 
 
 @login_required

@@ -11,26 +11,26 @@
     <!-- Summary Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Transaksi</h6>
-                    <h2 class="text-primary">{{ report.total_transaksi }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #6f4e37 0%, #8b6142 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Transaksi</h6>
+                    <h2>{{ report.total_transaksi }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Total Pendapatan</h6>
-                    <h2 class="text-success">{{ report.total_pendapatan }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #8b6142 0%, #a47551 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Total Pendapatan</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.total_pendapatan }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card">
-                <div class="card-body text-center">
-                    <h6 class="text-muted">Rata-rata per Transaksi</h6>
-                    <h2 class="text-warning">{{ report.rata_rata_transaksi }}</h2>
+            <div class="card stat-card" style="background: linear-gradient(135deg, #c7a17a 0%, #d4b594 100%);">
+                <div class="card-body text-center text-white">
+                    <h6>Rata-rata per Transaksi</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.rata_rata_transaksi }}</h2>
                 </div>
             </div>
         </div>
@@ -38,8 +38,8 @@
 
     <!-- Best Selling Menu Card -->
     {% if report.menu_terlaris %}
-    <div class="card stat-card mb-4 border-warning">
-        <div class="card-header bg-warning text-dark">
+    <div class="card stat-card mb-4" style="border-color: #c7a17a;">
+        <div class="card-header text-white" style="background-color: #c7a17a;">
             <h5 class="mb-0">
                 <i class="bi bi-cup-hot-fill"></i> Menu Terlaris Bulan Ini
             </h5>
@@ -51,7 +51,7 @@
                 </div>
                 <div class="col-md-4">
                     <p><strong>Jumlah Terjual:</strong> 
-                        <span class="badge bg-warning text-dark fs-6">{{ report.menu_terlaris.jumlah_terjual }}</span>
+                        <span class="badge fs-6" style="background-color: #8b6142; color: #fff;">{{ report.menu_terlaris.jumlah_terjual }}</span>
                     </p>
                 </div>
                 <div class="col-md-4">
@@ -76,7 +76,7 @@
     <div class="card stat-card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Detail Penjualan per Menu</h5>
-            <a href="{% url 'report:api_sales' %}" class="btn btn-sm btn-outline-primary" target="_blank">
+            <a href="{% url 'report:api_sales' %}" class="btn btn-sm" style="background-color: #6f4e37; color: #fff; border: 1px solid #6f4e37;" target="_blank">
                 <i class="bi bi-code-square"></i> API
             </a>
         </div>
@@ -98,13 +98,12 @@
                             <td>{{ forloop.counter }}</td>
                             <td><strong>{{ menu.nama_menu }}</strong></td>
                             <td>
-                                <span class="badge bg-info">{{ menu.jumlah_terjual }}</span>
+                                <span class="badge" style="background-color: #c7a17a;">{{ menu.jumlah_terjual }}</span>
                             </td>
-                            <td><strong class="text-success">{{ menu.total_pendapatan }}</strong></td>
+                            <td><strong style="color: #6f4e37;">{{ menu.total_pendapatan }}</strong></td>
                             <td>
                                 <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-success" role="progressbar" 
-                                         style="width: {{ menu.jumlah_terjual }}%"
+                                    <div class="progress-bar" role="progressbar" style="width: {{ menu.jumlah_terjual }}%; background-color: #8b6142;"
                                          aria-valuenow="{{ menu.jumlah_terjual }}" 
                                          aria-valuemin="0" aria-valuemax="100">
                                     </div>

@@ -3,27 +3,275 @@
 {% block title %}Laporan Inventory - Coffee CSOS{% endblock %}
 
 {% block content %}
-{# NOTE: Inventory report masih placeholder karena model logistik belum lengkap #}
 
-<div class="alert alert-info">
-    <i class="bi bi-info-circle-fill"></i>
-    <strong>Inventory Report Coming Soon</strong>
+{% if error %}
+<div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <strong>Error:</strong> {{ error }}
 </div>
+{% endif %}
 
-<div class="card stat-card">
-    <div class="card-body text-center py-5">
-        <i class="bi bi-box-seam text-muted" style="font-size: 4rem;"></i>
-        <h4 class="mt-3">Laporan Inventory Belum Tersedia</h4>
-        <p class="text-muted">
-            Fitur ini akan tersedia setelah model Barang, Supplier, dan TransaksiPembelian 
-            diimplementasi di app logistik.
-        </p>
+{% if report.message %}
+<div class="alert alert-warning">
+    <i class="bi bi-info-circle-fill"></i>
+    {{ report.message }}
+</div>
+{% else %}
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #6f4e37 0%, #8b6142 100%);">
+            <div class="card-body text-white text-center">
+                <i class="bi bi-box-seam" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-2 mb-0">{{ report.total_barang }}</h3>
+                <small>Total Item Barang</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #c7a17a 0%, #d4b594 100%);">
+            <div class="card-body text-white text-center">
+                <i class="bi bi-stack" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-2 mb-0">{{ report.total_stok }}</h3>
+                <small>Total Stok</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #8b6142 0%, #a47551 100%);">
+            <div class="card-body text-white text-center">
+                <i class="bi bi-currency-dollar" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-2 mb-0" style="font-size: 1.2rem;">{{ report.total_nilai_inventory }}</h3>
+                <small>Nilai Total Inventory</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #5a3d2b 0%, #6f4e37 100%);">
+            <div class="card-body text-white text-center">
+                <i class="bi bi-truck" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-2 mb-0">{{ report.total_supplier }}</h3>
+                <small>Total Supplier</small>
+            </div>
+        </div>
     </div>
 </div>
 
-{# TODO: Setelah model logistik selesai, implementasi template dengan struktur: #}
-{# 1. Summary Cards: total_barang, total_nilai_stok, barang_hampir_habis #}
-{# 2. Tabel Barang: nama_barang, kategori, stok, harga, supplier #}
-{# 3. Alert untuk barang yang stoknya menipis #}
+<!-- Warning Summary -->
+{% if report.warning_summary %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="alert d-flex align-items-center" style="background-color: #f4e4c1; border-color: #c7a17a; color: #5a3d2b;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>
+                <strong>{{ report.warning_summary.barang_stok_rendah }}</strong> barang stok rendah
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert d-flex align-items-center" style="background-color: #8b6142; border-color: #6f4e37; color: #fff;">
+            <i class="bi bi-calendar-x-fill me-2"></i>
+            <div>
+                <strong>{{ report.warning_summary.barang_sudah_kadaluarsa }}</strong> barang kadaluarsa
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert d-flex align-items-center" style="background-color: #c7a17a; border-color: #8b6142; color: #fff;">
+            <i class="bi bi-calendar-event-fill me-2"></i>
+            <div>
+                <strong>{{ report.warning_summary.barang_hampir_kadaluarsa }}</strong> hampir kadaluarsa
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Barang Nilai Tertinggi -->
+{% if report.barang_nilai_tertinggi %}
+<div class="card mb-4">
+    <div class="card-header text-white" style="background-color: #6f4e37;">
+        <i class="bi bi-trophy-fill"></i> Barang dengan Nilai Tertinggi
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="mb-0">{{ report.barang_nilai_tertinggi.nama }}</h5>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted">Stok:</small>
+                <p class="mb-0"><strong>{{ report.barang_nilai_tertinggi.stok }} unit</strong></p>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted">Nilai Total:</small>
+                <p class="mb-0"><strong style="color: #6f4e37;">{{ report.barang_nilai_tertinggi.nilai_total }}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Detail Barang Table -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-table"></i> Detail Inventory
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nama Barang</th>
+                        <th class="text-center">Stok</th>
+                        <th class="text-end">Harga</th>
+                        <th class="text-end">Nilai Total</th>
+                        <th class="text-center">Kadaluarsa</th>
+                        <th class="text-center">Status</th>
+                        <th>Warning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for barang in report.detail_barang %}
+                    <tr>
+                        <td><strong>{{ barang.nama }}</strong></td>
+                        <td class="text-center">{{ barang.stok }}</td>
+                        <td class="text-end">{{ barang.harga }}</td>
+                        <td class="text-end"><strong>{{ barang.nilai_total }}</strong></td>
+                        <td class="text-center">{{ barang.kadaluarsa }}</td>
+                        <td class="text-center">
+                            {% if barang.status == 'Normal' %}
+                            <span class="badge" style="background-color: #c7a17a; color: #fff;">{{ barang.status }}</span>
+                            {% elif barang.status == 'Stok Rendah' %}
+                            <span class="badge" style="background-color: #f4e4c1; color: #5a3d2b;">{{ barang.status }}</span>
+                            {% elif barang.status == 'Hampir Kadaluarsa' %}
+                            <span class="badge" style="background-color: #8b6142; color: #fff;">{{ barang.status }}</span>
+                            {% elif barang.status == 'Kadaluarsa' %}
+                            <span class="badge" style="background-color: #5a3d2b; color: #fff;">{{ barang.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if barang.warnings != '-' %}
+                            <small style="color: #8b6142;">{{ barang.warnings }}</small>
+                            {% else %}
+                            <small class="text-muted">{{ barang.warnings }}</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Barang Hampir Habis -->
+{% if report.barang_hampir_habis %}
+<div class="card mb-4" style="border-color: #c7a17a;">
+    <div class="card-header text-white" style="background-color: #c7a17a;">
+        <i class="bi bi-exclamation-triangle-fill"></i> Barang Stok Rendah (Perlu Restock)
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Nama Barang</th>
+                        <th class="text-center">Stok Saat Ini</th>
+                        <th class="text-center">Minimum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for barang in report.barang_hampir_habis %}
+                    <tr>
+                        <td><strong>{{ barang.nama }}</strong></td>
+                        <td class="text-center"><span class="badge" style="background-color: #f4e4c1; color: #5a3d2b;">{{ barang.stok }}</span></td>
+                        <td class="text-center">{{ barang.minimum }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Barang Kadaluarsa -->
+{% if report.barang_kadaluarsa %}
+<div class="card mb-4" style="border-color: #5a3d2b;">
+    <div class="card-header text-white" style="background-color: #5a3d2b;">
+        <i class="bi bi-calendar-x-fill"></i> Barang Kadaluarsa / Hampir Kadaluarsa
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Nama Barang</th>
+                        <th class="text-center">Tanggal Kadaluarsa</th>
+                        <th class="text-center">Hari Tersisa</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for barang in report.barang_kadaluarsa %}
+                    <tr>
+                        <td><strong>{{ barang.nama }}</strong></td>
+                        <td class="text-center">{{ barang.kadaluarsa }}</td>
+                        <td class="text-center">
+                            {% if barang.hari <= 0 %}
+                            <span class="badge" style="background-color: #5a3d2b; color: #fff;">{{ barang.hari }} hari</span>
+                            {% elif barang.hari <= 7 %}
+                            <span class="badge" style="background-color: #6f4e37; color: #fff;">{{ barang.hari }} hari</span>
+                            {% elif barang.hari <= 30 %}
+                            <span class="badge" style="background-color: #8b6142; color: #fff;">{{ barang.hari }} hari</span>
+                            {% else %}
+                            <span class="badge" style="background-color: #c7a17a; color: #fff;">{{ barang.hari }} hari</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if barang.hari <= 0 %}
+                            <span style="color: #5a3d2b;"><i class="bi bi-x-circle-fill"></i> Kadaluarsa</span>
+                            {% else %}
+                            <span style="color: #8b6142;"><i class="bi bi-exclamation-circle-fill"></i> Segera</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Supplier List -->
+{% if report.supplier_list %}
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-truck"></i> Daftar Supplier
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for supplier in report.supplier_list %}
+            <div class="col-md-4 mb-3">
+                <div class="card" style="border-color: #c7a17a;">
+                    <div class="card-body">
+                        <h6 class="card-title" style="color: #6f4e37;"><i class="bi bi-building"></i> {{ supplier.nama }}</h6>
+                        <p class="card-text mb-0">
+                            <small class="text-muted">
+                                <i class="bi bi-telephone"></i> {{ supplier.kontak }}
+                            </small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}
 
 {% endblock %}
