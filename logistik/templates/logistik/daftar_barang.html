@@ -140,6 +140,7 @@
                     <tr>
                         <th>Nama</th>
                         <th>Stok</th>
+                        <th>Stok Min</th>
                         <th>Kadaluarsa</th>
                         <th>Harga</th>
                         <th>Edit</th>
@@ -151,6 +152,7 @@
                     <tr>
                         <td>{{ b.nama }}</td>
                         <td>{{ b.stok }}</td>
+                        <td>{{ b.stok_minimum }}</td>
                         <td>{{ b.kadaluarsa|default:"-" }}</td>
                         <td>Rp {{ b.harga }}</td>
                         <td>
@@ -176,6 +178,7 @@
                     <tr>
                         <td>${item.nama}</td>
                         <td>${item.stok}</td>
+                        <td>${item.stok_minimum}</td>
                         <td>${item.kadaluarsa || "-"}</td>
                         <td>Rp ${item.harga}</td>
                         <td>

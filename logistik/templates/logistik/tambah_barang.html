@@ -105,11 +105,14 @@
                 <label>Stok</label>
                 <input type="number" name="stok" required>
 
+                <label>Stok Minimum</label>
+                <input type="number" name="stok_minimum" value="10" required>
+
                 <label>Tanggal Kadaluarsa (opsional)</label>
                 <input type="date" name="kadaluarsa">
 
                 <label>Harga</label>
-                <input type="number" name="harga" required>
+                <input type="number" name="harga" step="0.01" required>
 
                 <button class="btn" type="submit">Simpan Barang</button>
             </form>

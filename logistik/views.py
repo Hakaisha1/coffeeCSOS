@@ -100,8 +100,9 @@ def tambah_barang(request):
     if request.method == "POST":
         nama = request.POST.get("nama")
         stok = int(request.POST.get("stok"))
+        stok_minimum = int(request.POST.get("stok_minimum", 10))
         kadaluarsa = request.POST.get("kadaluarsa")
-        harga = int(request.POST.get("harga"))
+        harga = request.POST.get("harga")
         
         # Validasi kadaluarsa: harus kosong atau format tanggal yang benar
         if kadaluarsa and len(kadaluarsa.strip()) > 0:
@@ -114,6 +115,7 @@ def tambah_barang(request):
         Barang.objects.create(
             nama=nama,
             stok=stok,
+            stok_minimum=stok_minimum,
             harga=harga,
             kadaluarsa=kadaluarsa,
         )
