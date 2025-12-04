@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',  # Auth app harus di atas
+    'core', 
     'customer',
     'pegawai',
     'logistik',
