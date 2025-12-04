@@ -90,7 +90,7 @@ def daftar_barang(request):
 @role_required(['INVENTORY_MANAGER','GENERAL_MANAGER'])
 def daftar_barang(request):
     data = Barang.objects.all()
-    return render(request, "logistik/nyoba.html", {"barang_list": data})
+    return render(request, "logistik/daftar_barang.html", {"barang_list": data})
 
 @login_required
 @role_required(['INVENTORY_MANAGER','GENERAL_MANAGER'])

@@ -73,9 +73,28 @@
             background-color: var(--secondary-color);
         }
 
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--secondary-color);
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
+
+    <div class="sidebar">
+        <h2>Manajer Logistik</h2>
+        <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
+        <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
+        <a href="{% url 'tambah_barang' %}">Tambah Barang</a>
+        <a href="#">Supplier</a>
+    </div>
 
     <div class="container">
         <h1>📦 Daftar Barang Logistik</h1>
@@ -88,6 +107,7 @@
                 <tr>
                     <th>Nama Barang</th>
                     <th>Stok</th>
+                    <th>kadaluarsa</th>
                     <th>Harga</th>
                 </tr>
             </thead>
@@ -100,7 +120,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3">Tidak ada data barang.</td>
+                    <td colspan="4">Tidak ada data barang.</td>
                 </tr>
                 {% endfor %}
             </tbody>
