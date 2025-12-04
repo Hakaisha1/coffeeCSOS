@@ -301,12 +301,7 @@ class InventoryReport(Report):
         super().__init__("Laporan Inventory")
 
     def generate(self):
-        """
-        Generate laporan inventory
-        NOTE: Saat ini logistik.models belum memiliki model Barang, Supplier, dll
-        Hanya ada model pegawai/barista yang duplikat.
-        Implement ini setelah logistik models dibuat.
-        """
+
         self.content = {
             'message': 'Laporan inventory belum tersedia',
             'note': 'Menunggu implementasi model Barang, Supplier, TransaksiPembelian di app logistik'

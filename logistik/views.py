@@ -5,8 +5,12 @@ from .logistik import Barang as BarangOOP, Supplier as SupplierOOP
 from .logistik import Gudang, LogistikManager
 from datetime import date
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from core.decorator import role_required
 
 
+@login_required
+@role_required('IM')
 def proses_stok(request, id_barang):
     # 1. Ambil dari database
     barang_model = Barang.objects.get(id=id_barang)
@@ -39,10 +43,14 @@ def proses_stok(request, id_barang):
     return HttpResponse("Transaksi berhasil diproses.")
 
 
+@login_required
+@role_required('IM')
 def daftar_barang(request):
     data = Barang.objects.all()
     return render(request, "logistik/nyoba.html", {"barang_list": data})
 
+@login_required
+@role_required('IM')
 def tambah_barang(request):
     if request.method == "POST":
         nama = request.POST.get("nama")
