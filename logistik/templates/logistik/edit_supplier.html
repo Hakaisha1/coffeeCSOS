@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Barang</title>
+    <title>Edit Supplier</title>
 
     <style>
         :root {
@@ -101,31 +101,25 @@
 
     <div class="container">
 
-        <a class="back-link" href="{% url 'daftar_barang' %}">← Kembali ke Daftar Barang</a>
+        <a class="back-link" href="{% url 'daftar_supplier' %}">← Kembali ke Daftar Supplier</a>
 
         <div class="card">
-            <h3>Edit Barang</h3>
+            <h3>Edit Supplier</h3>
 
-            <form method="POST">
+            <form action="" method="POST">
                 {% csrf_token %}
 
-                <label>Nama Barang</label>
-                <input type="text" name="nama" value="{{ barang.nama }}" required>
+                <label>Nama Supplier</label>
+                <input type="text" name="nama" value="{{ supplier.nama }}" required>
 
-                <label>Stok</label>
-                <input type="number" name="stok" value="{{ barang.stok }}" required>
+                <label>Barang</label>
+                <input type="text" name="Barang" value="{{ supplier.Barang }}" required>
 
-                <label>Stok Minimum</label>
-                <input type="number" name="stok_minimum" value="{{ barang.stok_minimum }}" required>
+                <label>Kontak</label>
+                <input type="text" name="kontak" value="{{ supplier.kontak }}" required>
 
-                <label>Tanggal Kadaluarsa (opsional)</label>
-                <input type="date" name="kadaluarsa" value="{{ barang.kadaluarsa|date:'Y-m-d' }}">
-
-                <label>Harga</label>
-                <input type="number" name="harga" step="0.01" value="{{ barang.harga }}" required>
-
-                <button class="btn" type="submit">Update Barang</button>
-                <button class="btn btn-danger" type="submit" name="delete" onclick="return confirm('Yakin ingin menghapus barang ini?')">Hapus Barang</button>
+                <button class="btn" type="submit">Simpan Perubahan</button>
+                <button class="btn btn-danger" type="submit" name="delete" onclick="return confirm('Yakin ingin menghapus supplier ini?')">Hapus Supplier</button>
             </form>
         </div>
 

@@ -155,11 +155,48 @@ def edit_barang(request, id_barang):
     barang = get_object_or_404(Barang, id=id_barang)
 
     if request.method == "POST":
+        if "delete" in request.POST:
+            barang.delete()
+            return redirect("daftar_barang")
+        
         barang.nama = request.POST.get("nama")
         barang.stok = request.POST.get("stok")
+        barang.stok_minimum = request.POST.get("stok_minimum")
         barang.harga = request.POST.get("harga")
+        
+        kadaluarsa = request.POST.get("kadaluarsa")
+        if kadaluarsa:
+            barang.kadaluarsa = kadaluarsa
+        
         barang.save()
 
         return redirect("daftar_barang")
 
     return render(request, "logistik/edit_barang.html", {"barang": barang})
+
+def tambah_supplier(request):
+    if request.method == "POST":
+        Supplier.objects.create(
+            nama=request.POST["nama"],
+            Barang=request.POST.get("Barang", ""),
+            kontak=request.POST["kontak"]
+        )
+        return redirect("daftar_supplier")
+
+    return render(request, "logistik/tambah_supplier.html")
+
+def edit_supplier(request, id):
+    supplier = Supplier.objects.get(id=id)
+    
+    if request.method == "POST":
+        if "delete" in request.POST:
+            supplier.delete()
+            return redirect("daftar_supplier")
+        
+        supplier.nama = request.POST["nama"]
+        supplier.Barang = request.POST.get("Barang", "")
+        supplier.kontak = request.POST["kontak"]
+        supplier.save()
+        return redirect("daftar_supplier")
+    
+    return render(request, "logistik/edit_supplier.html", {"supplier": supplier})
