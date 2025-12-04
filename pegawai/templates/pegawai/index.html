@@ -183,7 +183,7 @@
             <div class="col-md-4">
                 <div class="stat-card">
                     <h3>{{ cleaner_list|length }}</h3>
-                    <p><i class="bi bi-cup-hot"></i> Total Cleaner</p>
+                    <p><i class="bi bi-cup-hot"></i> Total Cleaning Service</p>
                 </div>
             </div>
         </div>
@@ -220,8 +220,7 @@
                   <td>{{ p.jam_kerja }} jam</td>
                   <td><strong style="color: var(--primary-color);">Rp {{ p.total_gaji|floatformat:0 }}</strong></td>
                   <td>
-                    <form method="POST" action="{% url 'pegawai:delete_pegawai' %}"
-                        onsubmit="return confirm('Hapus {{ barista.nama }}?');">
+                    <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ barista.nama }}?');">
                         {% csrf_token %}
                         <input type="hidden" name="jenis" value="barista">
                         <input type="hidden" name="id_pegawai" value="{{ barista.id_pegawai }}">
@@ -252,6 +251,7 @@
                             <th>Bonus/Jam</th>
                             <th>Tambahan Jam Kerja</th>
                             <th>Total Gaji</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -265,6 +265,16 @@
                             <td>Rp {{ barista.bonus_per_jam|floatformat:0 }}</td>
                             <td><strong>{{ barista.jumlah_jam }}</strong> Jam</td>
                             <td><strong style="color: var(--primary-color);">Rp {{ barista.total_gaji|floatformat:0 }}</strong></td>
+                            <td>
+                                <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ barista.nama }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="jenis" value="barista">
+                                <input type="hidden" name="id_pegawai" value="{{ barista.id_pegawai }}">
+                                <button type="submit" class="btn btn-sm btn-coffee-outline">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -294,6 +304,7 @@
                             <th>Bonus/Jam</th>
                             <th>Tambahan Jam Kerja</th>
                             <th>Total Gaji</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -307,6 +318,16 @@
                             <td>Rp {{ waiter.bonus_per_jam|floatformat:0 }}</td>
                             <td><strong>{{ waiter.jumlah_jam }}</strong> Jam</td>
                             <td><strong style="color: var(--primary-color);">Rp {{ waiter.total_gaji|floatformat:0 }}</strong></td>
+                            <td>
+                                <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ waiter.nama }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="jenis" value="waiter">
+                                <input type="hidden" name="id_pegawai" value="{{ waiter.id_pegawai }}">
+                                <button type="submit" class="btn btn-sm btn-coffee-outline">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -322,7 +343,7 @@
 
         <!-- Daftar Cleaner -->
         <div class="content-card">
-            <h2><i class="bi bi-cup-hot-fill"></i> Daftar Cleaner</h2>
+            <h2><i class="bi bi-cup-hot-fill"></i> Daftar Cleaning Service</h2>
             {% if cleaner_list %}
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -336,6 +357,7 @@
                             <th>Bonus/Jam</th>
                             <th>Tambahan Jam Kerja</th>
                             <th>Total Gaji</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -349,6 +371,16 @@
                             <td>Rp {{ cleaner.bonus_per_jam|floatformat:0 }}</td>
                             <td><strong>{{ cleaner.jumlah_jam}}</strong> Jam</td>
                             <td><strong style="color: var(--primary-color);">Rp {{ cleaner.total_gaji|floatformat:0 }}</strong></td>
+                            <td>
+                                <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ cleaner.nama }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="jenis" value="cleaner">
+                                <input type="hidden" name="id_pegawai" value="{{ cleaner.id_pegawai }}">
+                                <button type="submit" class="btn btn-sm btn-coffee-outline">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -366,7 +398,70 @@
     </div>
   
 </div>
+    <div class="modal fade" id="modalTambahPegawai" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'pegawai:add_pegawai' %}">
+            {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Tambah Pegawai Baru</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Jenis Pegawai</label>
+            <select name="jenis" class="form-select" required>
+              <option value="barista">Barista</option>
+              <option value="waiter">Waiter</option>
+              <option value="cleaner">Cleaner</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">ID Pegawai</label>
+            <input type="text" name="id_pegawai" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Nama</label>
+            <input type="text" name="nama" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Shift</label>
+            <input type="text" name="shift" class="form-control" placeholder="Pagi / Siang / Sore / Malam" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Gaji per Jam</label>
+            <input type="number" name="gaji_per_jam" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Bonus per Jam Lembur</label>
+            <input type="number" name="bonus_per_jam" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Jam Kerja</label>
+            <input type="number" name="jam_kerja" class="form-control" value="0">
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Jam Lembur</label>
+            <input type="number" name="jumlah_jam" class="form-control" value="0">
+        </div>
     </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-coffee">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

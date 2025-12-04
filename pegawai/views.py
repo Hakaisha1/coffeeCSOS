@@ -47,7 +47,7 @@ def index(request):
             "shift": c.shift,
             "gaji_per_jam": c.gaji_per_jam,
             "jam_kerja": c.jam_kerja,
-            "total_gaji": w.total_gaji,
+            "total_gaji": c.total_gaji,
             "jenis": "cleaner",
         })
 
@@ -71,7 +71,7 @@ model_map = {
 }
 
 @require_POST
-def add_employee(request):
+def add_pegawai(request):
     jenis = request.POST.get('jenis')
     Model = model_map.get(jenis)
     if not Model:
@@ -106,6 +106,7 @@ def delete_employee(request):
     else:
         messages.warning(request, 'ID pegawai tidak ditemukan.')
     return redirect('pegawai:pegawai_index')
+
 
 @require_http_methods(["GET"])
 def list_pegawai(request):
