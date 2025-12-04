@@ -8,9 +8,18 @@ from .logistik import Barang as BarangOOP, Supplier as SupplierOOP
 from .logistik import Gudang, LogistikManager
 
 
+
 # =============================
 # PROSES STOK (OOP LOGIC)
-# =============================
+# ============================
+from datetime import date
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from core.decorators import role_required
+
+
+@login_required
+@role_required(['INVENTORY_MANAGER','GENERAL_MANAGER'])
 def proses_stok(request, id_barang):
     barang_model = Barang.objects.get(id=id_barang)
 
@@ -38,6 +47,7 @@ def proses_stok(request, id_barang):
     barang_model.save()
 
     return HttpResponse("Transaksi berhasil diproses.")
+
 
 
 # =============================
@@ -75,6 +85,16 @@ def daftar_barang(request):
 # =============================
 # TAMBAH BARANG
 # =============================
+
+@login_required
+@role_required(['INVENTORY_MANAGER','GENERAL_MANAGER'])
+def daftar_barang(request):
+    data = Barang.objects.all()
+    return render(request, "logistik/nyoba.html", {"barang_list": data})
+
+@login_required
+@role_required(['INVENTORY_MANAGER','GENERAL_MANAGER'])
+
 def tambah_barang(request):
     if request.method == "POST":
         nama = request.POST.get("nama")

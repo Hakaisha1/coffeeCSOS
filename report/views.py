@@ -2,14 +2,13 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 
-from core.decorator import role_required
+from core.decorators import role_required
 from .report import ReportManager, EmployeeReport, CustomerReport, SalesReport, InventoryReport
 import json
 from datetime import datetime
-from django.contrib.auth.decorators import login_required
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def report_dashboard(request):
     """Dashboard utama - menampilkan ringkasan semua report"""
     manager = ReportManager()
@@ -40,7 +39,7 @@ def report_dashboard(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def employee_report_view(request):
     """Halaman laporan pegawai dengan detail lengkap"""
     manager = ReportManager()
@@ -65,7 +64,7 @@ def employee_report_view(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def customer_report_view(request):
     """Halaman laporan pelanggan"""
     manager = ReportManager()
@@ -89,7 +88,7 @@ def customer_report_view(request):
         return render(request, 'report/customer_report.html', context)
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def sales_report_view(request):
     """Halaman laporan penjualan"""
     manager = ReportManager()
@@ -116,7 +115,7 @@ def inventory_report_view(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def api_employee_report(request):
 
     """API endpoint untuk data employee dalam format JSON"""
@@ -136,7 +135,7 @@ def api_employee_report(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def api_customer_report(request):
     """API endpoint untuk data customer dalam format JSON"""
     manager = ReportManager()
@@ -155,7 +154,7 @@ def api_customer_report(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def api_sales_report(request):
     """API endpoint untuk data sales dalam format JSON"""
     manager = ReportManager()
@@ -174,7 +173,7 @@ def api_sales_report(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def export_all_reports_json(request):
     """Export semua report ke JSON file dan download"""
     manager = ReportManager()
@@ -202,7 +201,7 @@ def export_all_reports_json(request):
 
 
 @login_required
-@role_required('GM')
+@role_required('GENERAL_MANAGER')
 def export_employee_report_csv(request):
     """Export employee report ke CSV file"""
     manager = ReportManager()
