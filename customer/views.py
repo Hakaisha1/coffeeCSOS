@@ -170,9 +170,6 @@ def tambah_menu_view(request):
     return render(request, "customer/tambah_menu.html")
 
 
-# ============================
-# Halaman Riwayat Transaksi
-# ============================
 def riwayat_view(request):
     customer = Customer.objects.first()  # nanti bisa diganti sesuai user login
     if not customer:
