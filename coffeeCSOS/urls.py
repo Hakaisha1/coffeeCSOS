@@ -16,6 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
+
+def home(request):
+    return JsonResponse({
+        'message': 'CoffeeCSOS API',
+        'endpoints': {
+            'pegawai': '/pegawai/api/pegawai/',
+            'barista': '/pegawai/api/barista/',
+        }
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,9 +41,10 @@ urlpatterns = [
     
     # HINT untuk pegawai app:
     # path('pegawai/', include('pegawai.urls')),
-    
+    path('pegawai/', include('pegawai.urls')),
     path('logistik/', include('logistik.urls')),
-    
+        path('', include('core.urls')),
+
     path('customer/', include('customer.urls')),
 
 ]

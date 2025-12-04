@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Barang - Logistik</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --secondary-color: #c7a17a;
+            --accent-color: #f4e4c1;
+            --text-dark: #3a2f28;
+            --text-light: #fff;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--accent-color);
+            color: var(--text-dark);
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: var(--primary-color);
+            padding: 15px;
+            position: fixed;
+            color: var(--text-light);
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+            
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--secondary-color);
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .sidebar a:hover {
+            background: var(--accent-color);
+        }
+
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: var(--text-light);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            color: var(--text-dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        table td {
+            background-color: #fffaf3;
+        }
+
+        .edit-btn {
+            padding: 6px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .edit-btn:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2 style=" font-size:34px; color: var(--accent-color); margin-bottom:20px;">
+            <i class="bi bi-cup-hot-fill"></i> CSOC
+        </h2>
+
+        <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
+        <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
+        <a href="{% url 'supplier' %}">Supplier</a>
+        <a href="{% url 'core:dashboard' %}" > Keluar ke Dashboard</a>
+    </div>
+
+    <div class="main-content">
+        <div class="card">
+            <h3>📦 Daftar Barang Logistik</h3>
+
+            <a href="{% url 'tambah_barang' %}" class="btn">+ Tambah Barang</a>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Stok</th>
+                        <th>Stok Min</th>
+                        <th>Kadaluarsa</th>
+                        <th>Harga</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tbody-barang">
+                    {% for b in barang_list %}
+                    <tr>
+                        <td>{{ b.nama }}</td>
+                        <td>{{ b.stok }}</td>
+                        <td>{{ b.stok_minimum }}</td>
+                        <td>{{ b.kadaluarsa|default:"-" }}</td>
+                        <td>Rp {{ b.harga }}</td>
+                        <td>
+                            <a class="edit-btn" href="{% url 'edit_barang' b.id %}">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    function loadBarang() {
+        fetch("{% url 'api_barang' %}")
+        .then(res => res.json())
+        .then(data => {
+            let tbody = document.getElementById("tbody-barang");
+            tbody.innerHTML = "";
+
+            data.barang.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.nama}</td>
+                        <td>${item.stok}</td>
+                        <td>${item.stok_minimum}</td>
+                        <td>${item.kadaluarsa || "-"}</td>
+                        <td>Rp ${item.harga}</td>
+                        <td>
+                            <a class="edit-btn" href="/logistik/edit/${item.id}/">Edit</a>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+    }
+
+    setInterval(loadBarang, 2000);
+    </script>
+
+</body>
+</html>

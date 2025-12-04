@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Barang</title>
+
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --secondary-color: #c7a17a;
+            --accent-color: #f4e4c1;
+            --text-dark: #3a2f28;
+            --text-light: #fff;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--accent-color);
+            color: var(--text-dark);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input {
+            width: 95%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: var(--text-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            color: var(--text-dark);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <a class="back-link" href="{% url 'daftar_barang' %}">← Kembali ke Daftar Barang</a>
+
+        <div class="card">
+            <h3>Tambah Barang Baru</h3>
+
+            <form action="" method="POST">
+                {% csrf_token %}
+
+                <label>Nama Barang</label>
+                <input type="text" name="nama" required>
+
+                <label>Stok</label>
+                <input type="number" name="stok" required>
+
+                <label>Stok Minimum</label>
+                <input type="number" name="stok_minimum" value="10" required>
+
+                <label>Tanggal Kadaluarsa (opsional)</label>
+                <input type="date" name="kadaluarsa">
+
+                <label>Harga</label>
+                <input type="number" name="harga" step="0.01" required>
+
+                <button class="btn" type="submit">Simpan Barang</button>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html>

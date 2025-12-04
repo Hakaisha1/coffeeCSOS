@@ -91,7 +91,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="navbar-brand mb-4">
-                <i class="bi bi-cup-hot-fill"></i> Coffee CSOS
+                <i class="bi bi-cup-hot-fill"></i> CSOS
             </div>
             
             <nav class="nav flex-column">
@@ -129,7 +129,18 @@
                 <a class="nav-link" href="{% url 'admin:index' %}">
                     <i class="bi bi-gear-fill"></i> Admin Panel
                 </a>
+                
+                <hr class="text-white">
+                
+                <a class="nav-link" href="{% url 'core:dashboard' %}">
+                    <i class="bi bi-arrow-left-circle"></i> Kembali ke Dashboard
+                </a>
+                
+                <a class="nav-link" href="{% url 'core:logout' %}">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
             </nav>
+        </div>
         </div>
         
         <!-- Main Content -->
