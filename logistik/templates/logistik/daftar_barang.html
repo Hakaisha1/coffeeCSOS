@@ -103,6 +103,20 @@
         table td {
             background-color: #fffaf3;
         }
+
+        .edit-btn {
+            padding: 6px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .edit-btn:hover {
+            background: var(--secondary-color);
+        }
     </style>
 </head>
 <body>
@@ -112,6 +126,7 @@
         <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
         <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
         <a href="{% url 'supplier' %}">Supplier</a>
+        <a href="{% url 'core:dashboard' %}" style="margin-top: 20px; background: #d9534f;">🚪 Keluar ke Dashboard</a>
     </div>
 
     <div class="main-content">
@@ -138,6 +153,9 @@
                         <td>{{ b.stok }}</td>
                         <td>{{ b.kadaluarsa|default:"-" }}</td>
                         <td>Rp {{ b.harga }}</td>
+                        <td>
+                            <a class="edit-btn" href="{% url 'edit_barang' b.id %}">Edit</a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -160,13 +178,15 @@
                         <td>${item.stok}</td>
                         <td>${item.kadaluarsa || "-"}</td>
                         <td>Rp ${item.harga}</td>
+                        <td>
+                            <a class="edit-btn" href="/logistik/edit/${item.id}/">Edit</a>
+                        </td>
                     </tr>
                 `;
             });
         });
     }
 
-    // Auto refresh setiap 2 detik menggunakan AJAX
     setInterval(loadBarang, 2000);
     </script>
 

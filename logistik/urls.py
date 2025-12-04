@@ -18,5 +18,7 @@ urlpatterns = [
 
     # API (untuk AJAX)
     path("api/supplier/", views.api_supplier, name="api_supplier"),
+    path("edit/<int:id_barang>/", views.edit_barang, name="edit_barang"),
+
 
 ]

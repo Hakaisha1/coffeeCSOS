@@ -142,7 +142,7 @@
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="stat-card">
-                    <h3>{{ barista_list|length }}</h3>
+                    <h3>{{ total_pegawai }}</h3>
                     <p><i class="bi bi-person-badge"></i> Total Pegawai</p>
                 </div>
             </div>
@@ -164,6 +164,37 @@
                     <p><i class="bi bi-cup-hot"></i> Total Cleaner</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Daftar Semua Pegawai -->
+        <div class="content-card">
+            <h2>Daftar Pegawai (General)</h2>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama</th>
+                  <th>Posisi</th>
+                  <th>Shift</th>
+                  <th>Gaji/Jam</th>
+                  <th>Jam Kerja</th>
+                  <th>Total Gaji</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in semua_pegawai %}
+                <tr>
+                  <td>{{ p.id_pegawai }}</td>
+                  <td>{{ p.nama }}</td>
+                  <td>{{ p.posisi }}</td>
+                  <td><span class="badge badge-custom badge-barista">{{ p.shift }}</span></td>
+                  <td>Rp {{ p.gaji_per_jam|floatformat:0 }}</td>
+                  <td>{{ p.jam_kerja }} jam</td>
+                  <td><strong style="color: var(--primary-color);">Rp {{ p.total_gaji|floatformat:0 }}</strong></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
         </div>
 
         <!-- Daftar Barista -->
@@ -193,7 +224,7 @@
                             <td>Rp {{ barista.gaji_per_jam|floatformat:0 }}</td>
                             <td>{{ barista.jam_kerja }} jam</td>
                             <td>Rp {{ barista.bonus_per_jam|floatformat:0 }}</td>
-                            <td><strong>{{ barista.jumlah_jam }}</strong> cup</td>
+                            <td><strong>{{ barista.jumlah_jam }}</strong> Jam</td>
                             <td><strong style="color: var(--primary-color);">Rp {{ barista.total_gaji|floatformat:0 }}</strong></td>
                         </tr>
                         {% endfor %}
@@ -235,7 +266,7 @@
                             <td>Rp {{ waiter.gaji_per_jam|floatformat:0 }}</td>
                             <td>{{ waiter.jam_kerja }} jam</td>
                             <td>Rp {{ waiter.bonus_per_jam|floatformat:0 }}</td>
-                            <td><strong>{{ waiter.jumlah_jam }}</strong> cup</td>
+                            <td><strong>{{ waiter.jumlah_jam }}</strong> Jam</td>
                             <td><strong style="color: var(--primary-color);">Rp {{ waiter.total_gaji|floatformat:0 }}</strong></td>
                         </tr>
                         {% endfor %}
@@ -276,8 +307,8 @@
                             <td><span class="badge badge-custom badge-barista">{{ cleaner.shift }}</span></td>
                             <td>Rp {{ cleaner.gaji_per_jam|floatformat:0 }}</td>
                             <td>{{ cleaner.jam_kerja }} jam</td>
-                            <td>Rp {{ cleaner.bonus_per_minuman|floatformat:0 }}</td>
-                            <td><strong>{{ cleaner.minuman_terjual }}</strong> cup</td>
+                            <td>Rp {{ cleaner.bonus_per_jam|floatformat:0 }}</td>
+                            <td><strong>{{ cleaner.jumlah_jam}}</strong> Jam</td>
                             <td><strong style="color: var(--primary-color);">Rp {{ cleaner.total_gaji|floatformat:0 }}</strong></td>
                         </tr>
                         {% endfor %}
