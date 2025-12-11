@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-=)q9@&j+(bhsjz!xfgcfm$cu1rv-hxqmgu_xdq(cngl=$&$h8a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['exynos25.pythonanywhere.com']  # Untuk production, ganti dengan domain PythonAnywhere: ['yourusername.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'exynos25.pythonanywhere.com']  # Untuk production, ganti dengan domain PythonAnywhere: ['yourusername.pythonanywhere.com']
 
 AUTH_USER_MODEL = 'core.User'
 
