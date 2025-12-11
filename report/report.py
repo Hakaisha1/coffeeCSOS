@@ -209,40 +209,32 @@ class CustomerReport(Report):
                 customer=cust, 
                 jenis='pembelian'
             )
-            riwayat_topup = Riwayat.objects.filter(
-                customer=cust, 
-                jenis='top up'
-            )
             
             total_pembelian = riwayat_pembelian.aggregate(
                 total=Sum('total_belanja')
-            )['total'] or 0
-            
-            total_topup = riwayat_topup.aggregate(
-                total=Sum('perubahan')
             )['total'] or 0
             
             jumlah_transaksi = riwayat_pembelian.count()
             
             customer_data = {
                 'nama': cust.nama,
-                'saldo_saat_ini': cust.saldo,
-                'total_top_up': total_topup,
                 'total_pembelian': total_pembelian,
                 'jumlah_transaksi': jumlah_transaksi,
             }
             
             customer_stats.append(customer_data)
-            total_saldo_semua += cust.saldo
         
         # Sort by total pembelian
         customer_stats.sort(key=lambda x: x['total_pembelian'], reverse=True)
         customer_terbaik = customer_stats[0] if customer_stats else None
         
+        # Hitung total pembelian semua customer
+        total_pembelian_semua = sum(stat['total_pembelian'] for stat in customer_stats)
+        
         self.content = {
             'total_customer': len(customers),
-            'total_saldo_semua_customer': f"Rp {total_saldo_semua:,}",
-            'rata_rata_saldo': f"Rp {total_saldo_semua / len(customers):,.0f}" if len(customers) > 0 else "Rp 0",
+            'total_pembelian_semua': f"Rp {total_pembelian_semua:,}",
+            'rata_rata_pembelian': f"Rp {total_pembelian_semua / len(customers):,.0f}" if len(customers) > 0 else "Rp 0",
             'customer_terbaik': {
                 'nama': customer_terbaik['nama'],
                 'total_pembelian': f"Rp {customer_terbaik['total_pembelian']:,}",
@@ -251,8 +243,7 @@ class CustomerReport(Report):
             'detail_customer': [
                 {
                     'nama': cust['nama'],
-                    'saldo_saat_ini': f"Rp {cust['saldo_saat_ini']:,}",
-                    'total_top_up': f"Rp {cust['total_top_up']:,}",
+
                     'total_pembelian': f"Rp {cust['total_pembelian']:,}",
                     'jumlah_transaksi': cust['jumlah_transaksi']
                 }

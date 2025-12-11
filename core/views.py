@@ -54,16 +54,19 @@ def dashboard_view(request):
     # Tentukan akses berdasarkan role
     if user.role == 'GENERAL_MANAGER':
         context['accessible_apps'] = ['Customer', 'Pegawai', 'Logistik', 'Report']
+        context['can_access_pegawai'] = True
         context['can_access_report'] = True
         context['can_access_logistik'] = True
         
     elif user.role == 'INVENTORY_MANAGER':
-        context['accessible_apps'] = ['Customer', 'Pegawai', 'Logistik']
+        context['accessible_apps'] = ['Customer', 'Logistik']
+        context['can_access_pegawai'] = False
         context['can_access_report'] = False
         context['can_access_logistik'] = True
         
     else:  # EMPLOYEE
-        context['accessible_apps'] = ['Customer', 'Pegawai']
+        context['accessible_apps'] = ['Customer']
+        context['can_access_pegawai'] = False
         context['can_access_report'] = False
         context['can_access_logistik'] = False
     

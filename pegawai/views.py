@@ -4,7 +4,10 @@ from .models import Pegawai, Barista, Waiter, Cleaner
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from core.decorators import role_required
 
+
+@role_required(['GENERAL_MANAGER'])
 def index(request):
     barista_list = Barista.objects.all()
     waiter_list = Waiter.objects.all()
@@ -70,6 +73,7 @@ model_map = {
     'cleaner': Cleaner,
 }
 
+@role_required(['GENERAL_MANAGER'])
 @require_POST
 def add_pegawai(request):
     jenis = request.POST.get('jenis')
@@ -91,6 +95,7 @@ def add_pegawai(request):
     return redirect('pegawai:pegawai_index')
 
 
+@role_required(['GENERAL_MANAGER'])
 @require_POST
 def delete_employee(request):
     jenis = request.POST.get('jenis')
@@ -108,11 +113,13 @@ def delete_employee(request):
     return redirect('pegawai:pegawai_index')
 
 
+@role_required(['GENERAL_MANAGER'])
 @require_http_methods(["GET"])
 def list_pegawai(request):
     pegawai = Pegawai.objects.all().values()
     return JsonResponse(list(pegawai), safe=False)
 
+@role_required(['GENERAL_MANAGER'])
 @require_http_methods(["GET"])
 def detail_pegawai(request, id_pegawai):
     try:
@@ -128,6 +135,7 @@ def detail_pegawai(request, id_pegawai):
     except Pegawai.DoesNotExist:
         return JsonResponse({'error': 'Pegawai tidak ditemukan'}, status=404)
 
+@role_required(['GENERAL_MANAGER'])
 @require_http_methods(["POST"])
 def create_pegawai(request):
     import json
@@ -142,6 +150,7 @@ def create_pegawai(request):
     return JsonResponse({'status': 'success', 'message': 'Pegawai berhasil ditambahkan'})
 
 
+@role_required(['GENERAL_MANAGER'])
 @require_http_methods(["PUT"])
 def update_pegawai(request, id_pegawai):
     import json
@@ -158,6 +167,7 @@ def update_pegawai(request, id_pegawai):
         return JsonResponse({'error': 'Pegawai tidak ditemukan'}, status=404)
 
 
+@role_required(['GENERAL_MANAGER'])
 @require_http_methods(["DELETE"])
 def delete_pegawai(request, id_pegawai):
     try:
@@ -168,6 +178,7 @@ def delete_pegawai(request, id_pegawai):
         return JsonResponse({'error': 'Pegawai tidak ditemukan'}, status=404)
 
 
+@role_required(['GENERAL_MANAGER'])
 @require_http_methods(["GET"])
 def list_barista(request):
     barista = Barista.objects.all().values()

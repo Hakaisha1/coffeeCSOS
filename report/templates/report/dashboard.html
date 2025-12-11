@@ -112,8 +112,8 @@
                                 <h4>{{ report.content.total_customer }}</h4>
                             </div>
                             <div class="col-6">
-                                <p class="mb-1 text-muted">Total Saldo</p>
-                                <h4>{{ report.content.total_saldo_semua_customer }}</h4>
+                                <p class="mb-1 text-muted">Total Pembelian</p>
+                                <h4>{{ report.content.total_pembelian_semua }}</h4>
                             </div>
                         {% elif report.title == 'Laporan Penjualan' %}
                             <div class="col-6">
@@ -123,6 +123,15 @@
                             <div class="col-6">
                                 <p class="mb-1 text-muted">Total Pendapatan</p>
                                 <h4>{{ report.content.total_pendapatan }}</h4>
+                            </div>
+                        {% elif report.title == 'Laporan Inventory' %}
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Total Barang</p>
+                                <h4>{{ report.content.total_barang }}</h4>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Stok Rendah</p>
+                                <h4 class="text-danger">{{ report.content.warning_summary.barang_stok_rendah }}</h4>
                             </div>
                         {% endif %}
                     </div>
@@ -137,6 +146,10 @@
                             </a>
                         {% elif report.title == 'Laporan Penjualan' %}
                             <a href="{% url 'report:sales_report' %}" class="btn btn-sm" style="background-color: #c7a17a; color: #fff;">
+                                Lihat Detail <i class="bi bi-arrow-right"></i>
+                            </a>
+                        {% elif report.title == 'Laporan Inventory' %}
+                            <a href="{% url 'report:inventory_report' %}" class="btn btn-sm" style="background-color: #5a3d2b; color: #fff;">
                                 Lihat Detail <i class="bi bi-arrow-right"></i>
                             </a>
                         {% endif %}

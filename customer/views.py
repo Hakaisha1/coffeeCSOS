@@ -1,132 +1,124 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Customer, MenuItem, Pesanan, PesananDetail, Riwayat
-from django.utils import timezone
-from .models import MenuItemBahan
+from .models import Customer, MenuItem, Pesanan, PesananDetail
 from logistik.models import Barang
+from customer.models import Riwayat
+from django.utils import timezone
+
 
 def menu_view(request):
     menu = MenuItem.objects.all()
+
     cart = request.session.get('cart', [])
+    customer_id = request.session.get('customer_id')
+    customer = Customer.objects.filter(id=customer_id).first() if customer_id else None
+
     error = None
     success = None
     kembalian = None
 
-    customer = Customer.objects.first()
-    if not customer:
-        error = "Belum ada customer. Silakan tambahkan customer terlebih dahulu."
-        return render(request, 'customer/menu.html', {
-            'menu': menu,
-            'cart': cart,
-            'error': error,
-            'success': success,
-            'total_bayar': 0,
-            'kembalian': kembalian,
-            'customer': None
-        })
+    # TAMBAH ITEM
+    if request.method == "POST" and 'add_item' in request.POST:
+        item_id = int(request.POST.get("item_id"))
+        menu_item = MenuItem.objects.get(id=item_id)
 
-    if request.method == "POST":
-        # Tambah item ke keranjang
-        if 'add_item' in request.POST:
-            item_id = int(request.POST.get('item_id'))
-            qty = int(request.POST.get('qty', 1))
-            menu_item = MenuItem.objects.get(id=item_id)
-            found = False
-            for c in cart:
-                if c['id'] == item_id:
-                    c['qty'] += qty
-                    c['total'] = c['harga'] * c['qty']
-                    found = True
-                    break
-            if not found:
-                cart.append({
-                    'id': menu_item.id,
-                    'nama': menu_item.nama,
-                    'harga': menu_item.harga,
-                    'qty': qty,
-                    'total': menu_item.harga * qty
-                })
-            request.session['cart'] = cart
-            success = f"{menu_item.nama} x{qty} ditambahkan ke keranjang."
+        found = False
+        for c in cart:
+            if c['id'] == item_id:
+                c['qty'] += 1
+                c['total'] = c['qty'] * c['harga']
+                found = True
+                break
 
-        # Update jumlah item
-        elif 'update_qty' in request.POST:
-            item_id = int(request.POST.get('item_id'))
-            qty = int(request.POST.get('qty', 1))
-            for c in cart:
-                if c['id'] == item_id:
-                    c['qty'] = qty
-                    c['total'] = c['harga'] * qty
-                    success = f"Jumlah {c['nama']} diperbarui menjadi {qty}."
-                    break
-            request.session['cart'] = cart
+        if not found:
+            cart.append({
+                "id": menu_item.id,
+                "nama": menu_item.nama,
+                "harga": menu_item.harga,
+                "qty": 1,
+                "total": menu_item.harga
+            })
 
-        # Hapus item
-        elif 'hapus_item' in request.POST:
-            item_id = int(request.POST.get('item_id'))
-            cart = [c for c in cart if c['id'] != item_id]
-            request.session['cart'] = cart
-            success = "Item dihapus dari keranjang."
+        request.session["cart"] = cart
+        success = f"{menu_item.nama} ditambahkan ke keranjang."
 
-        # Checkout / Bayar
-        elif 'checkout' in request.POST:
+    # HAPUS ITEM
+    if request.method == "POST" and "hapus_item" in request.POST:
+        item_id = int(request.POST.get("item_id"))
+        cart = [c for c in cart if c['id'] != item_id]
+        request.session['cart'] = cart
+        success = "Item dihapus dari keranjang."
+
+    # UPDATE JUMLAH
+    if request.method == "POST" and "update_qty" in request.POST:
+        item_id = int(request.POST.get("item_id"))
+        qty = int(request.POST.get("qty", 1))
+        for c in cart:
+            if c['id'] == item_id:
+                c['qty'] = qty
+                c['total'] = qty * c['harga']
+                break
+        request.session['cart'] = cart
+        success = "Jumlah diperbarui."
+
+    # CHECKOUT 
+    if request.method == "POST" and "checkout" in request.POST:
+
+        nama = request.POST.get("nama", "").strip()
+        if not nama:
+            error = "Nama customer wajib diisi untuk checkout."
+        else:
+            customer, created = Customer.objects.get_or_create(nama=nama)
+            request.session["customer_id"] = customer.id
+
             total_bayar = sum(item['total'] for item in cart)
-            try:
-                bayar = int(request.POST.get('bayar', 0))
-            except ValueError:
-                error = "Uang bayar harus berupa angka."
-                bayar = 0
+            bayar = int(request.POST.get("bayar", 0))
 
             if bayar < total_bayar:
-                error = f"Uang bayar kurang! Total Rp{total_bayar:,}."
+                error = f"Uang bayar kurang! Total: Rp{total_bayar:,}"
             else:
                 kembalian = bayar - total_bayar
 
-                # Simpan pesanan ringkas
                 pesanan = Pesanan.objects.create(
                     customer=customer,
                     total_harga=total_bayar
                 )
 
-                # Simpan detail tiap item
-                detail_list = []
                 for item in cart:
                     menu_item = MenuItem.objects.get(id=item['id'])
-                    detail = PesananDetail.objects.create(
+                    PesananDetail.objects.create(
                         customer=customer,
                         menu=menu_item,
                         jumlah=item['qty'],
                         total_harga=item['total']
                     )
-                    detail_list.append({
-                        'menu': detail.menu.nama,
-                        'qty': detail.jumlah,
-                        'total': detail.total_harga
-                    })
-
-                # Simpan riwayat transaksi
+                
+                # Simpan ke Riwayat
                 Riwayat.objects.create(
                     customer=customer,
+                    jenis='pembelian',
                     total_belanja=total_bayar,
                     perubahan=kembalian,
-                    pesanan=detail_list
+                    pesanan=cart,  
                 )
+
 
                 cart = []
                 request.session['cart'] = cart
-                success = f"Transaksi berhasil. Kembalian: Rp{kembalian:,}."
+                success = f"Transaksi berhasil. Kembalian: Rp{kembalian:,}"
 
     total_bayar = sum(item['total'] for item in cart)
 
-    return render(request, 'customer/menu.html', {
-        'menu': menu,
-        'cart': cart,
-        'error': error,
-        'success': success,
-        'total_bayar': total_bayar,
-        'kembalian': kembalian,
-        'customer': customer
+    return render(request, "customer/menu.html", {
+        "menu": menu,
+        "cart": cart,
+        "error": error,
+        "success": success,
+        "total_bayar": total_bayar,
+        "kembalian": kembalian,
+        "customer": customer,
     })
+
 
 
 
@@ -165,19 +157,14 @@ def tambah_menu_view(request):
                 continue
 
         messages.success(request, f"Menu {nama} berhasil ditambahkan.")
-        return redirect("menu")  # atau redirect ke halaman menu
+        return redirect("menu")  
 
     return render(request, "customer/tambah_menu.html")
 
-
+# Riwayat Transaksi
 def riwayat_view(request):
-    customer = Customer.objects.first()  # nanti bisa diganti sesuai user login
-    if not customer:
-        messages.error(request, "Belum ada customer.")
-        return redirect('menu_view')
+    riwayat_list = Riwayat.objects.all().order_by('-timestamp')
 
-    riwayat_list = Riwayat.objects.filter(customer=customer).order_by('-timestamp')
-
-    context = {'riwayat_list': riwayat_list}
-    return render(request, "customer/riwayat.html", context)
-
+    return render(request, "customer/riwayat.html", {
+        "riwayat_list": riwayat_list
+    })
