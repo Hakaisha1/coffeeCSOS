@@ -4,6 +4,7 @@ from .models import Customer, MenuItem, Pesanan, PesananDetail
 from logistik.models import Barang
 from customer.models import Riwayat
 from django.utils import timezone
+from customer.models import MenuItemBahan
 
 
 def menu_view(request):
@@ -92,6 +93,8 @@ def menu_view(request):
                         jumlah=item['qty'],
                         total_harga=item['total']
                     )
+
+                # Pengurangan stok sudah otomatis via signal di logistik/signals.py
                 
                 # Simpan ke Riwayat
                 Riwayat.objects.create(

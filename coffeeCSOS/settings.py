@@ -40,9 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'core', 
+    'logistik.apps.LogistikConfig',
     'customer',
     'pegawai',
-    'logistik',
     'report',
 ]
 
