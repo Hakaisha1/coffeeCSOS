@@ -1,35 +1,165 @@
-{% load static %}
+{% load humanize %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tambah Menu</title>
+    <title>Tambah Menu - CoffeeCSOS</title>
+
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: "#6f4e37",
+                    secondary: "#c7a17a",
+                    accent: "#f4e4c1"
+                }
+            }
+        }
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --secondary-color: #c7a17a;
+            --accent-color: #f4e4c1;
+        }
+
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .bg-secondary { background-color: var(--secondary-color) !important; }
+        .bg-accent { background-color: var(--accent-color) !important; }
+
+        .text-primary { color: var(--primary-color) !important; }
+        .text-secondary { color: var(--secondary-color) !important; }
+        .text-accent { color: var(--accent-color) !important; }
+
+        .border-primary { border-color: var(--primary-color) !important; }
+        .border-secondary { border-color: var(--secondary-color) !important; }
+    </style>
+
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
 
-<div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Tambah Menu Baru</h1>
+<body class="bg-accent font-sans">
 
-    {% if messages %}
-        {% for message in messages %}
-            <p class="text-red-600 mb-2">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+<header class="bg-primary text-white px-6 py-4 shadow-lg sticky top-0 z-50">
 
-    <form method="post">
-        {% csrf_token %}
-        <label class="block font-semibold mb-1">Nama Menu:</label>
-        <input type="text" name="nama" class="w-full border p-2 rounded mb-3" required>
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
 
-        <label class="block font-semibold mb-1">Harga:</label>
-        <input type="number" name="harga" class="w-full border p-2 rounded mb-3" required>
+        <!-- KIRI: Judul -->
+        <h1 class="text-2xl font-bold tracking-wide">
+            ☕ CoffeeCSOS – Kasir
+        </h1>
 
-        <label class="block font-semibold mb-1">Bahan (satu per baris):</label>
-        <textarea name="bahan" class="w-full border p-2 rounded mb-3" rows="5" placeholder="Contoh:\nBiji Kopi\nSusu\nGula" required></textarea>
+        <!-- KANAN: Navbar pakai ikon -->
+        <nav>
+            <div class="bg-white px-6 py-2 shadow rounded-full flex items-center space-x-8 text-primary font-semibold">
 
-        <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800">Tambah Menu</button>
-    </form>
+                <!-- PESANAN -->
+                <a href="{% url 'menu' %}" 
+                    class="flex items-center gap-2 transition
+                          {% if request.resolver_match.url_name == 'menu' %}
+                              text-secondary border-b-2 border-secondary pb-1
+                          {% else %}
+                              hover:text-secondary
+                          {% endif %}">
+                    
+                    <!-- Icon Pesanan -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 12h6V3H3v9zm0 9h6v-6H3v6zm9 0h6v-9h-6v9zm0-18v6h6V3h-6z" />
+                    </svg>
+
+                    Pesanan
+                </a>
+
+                <!-- TAMBAH MENU -->
+                <a href="{% url 'tambah_menu' %}"
+                    class="flex items-center gap-2 transition
+                          {% if request.resolver_match.url_name == 'tambah_menu' %}
+                              text-secondary border-b-2 border-secondary pb-1
+                          {% else %}
+                              hover:text-secondary
+                          {% endif %}">
+                    
+                    <!-- Icon Tambah -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 4v16m8-8H4" />
+                    </svg>
+
+                    Tambah Menu
+                </a>
+
+                <!-- RIWAYAT -->
+                <a href="{% url 'customer_riwayat' %}"
+                    class="flex items-center gap-2 transition
+                          {% if request.resolver_match.url_name == 'customer_riwayat' %}
+                              text-secondary border-b-2 border-secondary pb-1
+                          {% else %}
+                              hover:text-secondary
+                          {% endif %}">
+                    
+                    <!-- Icon Riwayat -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+
+                    Riwayat
+                </a>
+
+            </div>
+        </nav>
+
+    </div>
+
+</header>
+
+<div class="container mx-auto flex justify-center px-4 mt-10">
+    <div class="w-full md:w-1/2 bg-white p-6 rounded-xl shadow border border-secondary/30">
+        <h1 class="text-2xl font-bold mb-6 text-primary text-center">Tambah Menu Baru</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="text-red-600 mb-3">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="flex flex-col gap-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block font-semibold mb-1 text-primary">Nama Menu:</label>
+                <input type="text" name="nama" required
+                    class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-secondary">
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1 text-primary">Harga:</label>
+                <input type="number" name="harga" required
+                    class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-secondary">
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1 text-primary">Bahan (satu per baris):</label>
+                <textarea name="bahan" rows="5" required placeholder="Contoh:
+Biji Kopi
+Susu
+Gula"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-secondary"></textarea>
+            </div>
+
+            <button type="submit"
+                class="bg-primary text-white py-2 rounded hover:bg-secondary transition font-semibold">
+                Tambah Menu
+            </button>
+        </form>
+    </div>
 </div>
 
 </body>
