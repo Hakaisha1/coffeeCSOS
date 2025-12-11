@@ -12,6 +12,7 @@ class MenuItem(models.Model):
 
 class Customer(models.Model):
     nama = models.CharField(max_length=100, unique=True)
+    saldo = models.IntegerField(default=0)
 
     def __str__(self):
         return self.nama
@@ -19,7 +20,13 @@ class Customer(models.Model):
 
 
 class Riwayat(models.Model):
+    JENIS_CHOICES = [
+        ('pembelian', 'Pembelian'),
+        ('top_up', 'Top Up Saldo'),
+    ]
+    
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="riwayat")
+    jenis = models.CharField(max_length=20, choices=JENIS_CHOICES, default='pembelian')
     total_belanja = models.IntegerField(null=True, blank=True)
     perubahan = models.IntegerField(null=True, blank=True)
     pesanan = models.JSONField(null=True, blank=True)

@@ -28,7 +28,7 @@ def home(request):
     })
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('console/', admin.site.urls),
     
     # CONTOH LENGKAP: Include report URLs
     # Semua URL dari report.urls akan diakses dengan prefix 'reports/'

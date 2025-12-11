@@ -96,10 +96,11 @@ def menu_view(request):
                 # Simpan ke Riwayat
                 Riwayat.objects.create(
                     customer=customer,
+                    jenis='pembelian',
                     total_belanja=total_bayar,
                     perubahan=kembalian,
                     pesanan=cart,  
-)
+                )
 
 
                 cart = []
