@@ -206,7 +206,6 @@
                   <th>Gaji/Jam</th>
                   <th>Jam Kerja</th>
                   <th>Total Gaji</th>
-                  <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -219,16 +218,6 @@
                   <td>Rp {{ p.gaji_per_jam|floatformat:0 }}</td>
                   <td>{{ p.jam_kerja }} jam</td>
                   <td><strong style="color: var(--primary-color);">Rp {{ p.total_gaji|floatformat:0 }}</strong></td>
-                  <td>
-                    <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ barista.nama }}?');">
-                        {% csrf_token %}
-                        <input type="hidden" name="jenis" value="barista">
-                        <input type="hidden" name="id_pegawai" value="{{ barista.id_pegawai }}">
-                        <button type="submit" class="btn btn-sm btn-coffee-outline">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
