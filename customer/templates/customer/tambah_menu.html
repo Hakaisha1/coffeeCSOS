@@ -47,12 +47,28 @@
 
     <div class="max-w-7xl mx-auto flex items-center justify-between">
 
-        <!-- KIRI: Judul -->
-        <h1 class="text-2xl font-bold tracking-wide">
-            ☕ CoffeeCSOS – Kasir
-        </h1>
+        <!-- KIRI: TOMBOL KEMBALI + JUDUL -->
+        <div class="flex items-center gap-4">
 
-        <!-- KANAN: Navbar pakai ikon -->
+            <!-- TOMBOL KEMBALI -->
+            <a href="{% url 'core:dashboard' %}"
+               class="inline-flex items-center gap-2 bg-white text-primary px-4 py-2 rounded-full shadow
+                      hover:bg-secondary hover:text-primary transition font-semibold">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali
+            </a>
+
+            <!-- JUDUL -->
+            <h1 class="text-2xl font-bold tracking-wide">☕ CoffeeCSOS</h1>
+
+        </div>
+
+        <!-- KANAN: NAVBAR -->
         <nav>
             <div class="bg-white px-6 py-2 shadow rounded-full flex items-center space-x-8 text-primary font-semibold">
 
@@ -64,14 +80,11 @@
                           {% else %}
                               hover:text-secondary
                           {% endif %}">
-                    
-                    <!-- Icon Pesanan -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M3 12h6V3H3v9zm0 9h6v-6H3v6zm9 0h6v-9h-6v9zm0-18v6h6V3h-6z" />
                     </svg>
-
                     Pesanan
                 </a>
 
@@ -83,14 +96,11 @@
                           {% else %}
                               hover:text-secondary
                           {% endif %}">
-                    
-                    <!-- Icon Tambah -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M12 4v16m8-8H4" />
                     </svg>
-
                     Tambah Menu
                 </a>
 
@@ -102,14 +112,11 @@
                           {% else %}
                               hover:text-secondary
                           {% endif %}">
-                    
-                    <!-- Icon Riwayat -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-
                     Riwayat
                 </a>
 
