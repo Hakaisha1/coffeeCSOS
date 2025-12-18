@@ -1,0 +1,232 @@
+{% extends 'report/base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Loading Indicator -->
+    <div id="loading" class="text-center py-5">
+        <div class="spinner-border" style="color: #6f4e37;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Memuat data feedback...</p>
+    </div>
+
+    <!-- Content Container -->
+    <div id="content" style="display: none;">
+        <!-- Error Container -->
+        <div id="error-container"></div>
+
+        <!-- Report Content -->
+        <div id="report-content"></div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('{% url "report:api_feedback" %}')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading').style.display = 'none';
+            
+            if (data.success) {
+                const report = data.data;
+                
+                if (report.message) {
+                    document.getElementById('error-container').innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> ${report.message}
+                        </div>
+                    `;
+                } else {
+                    let html = `
+                        <!-- Summary Cards -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="card stat-card" style="background: linear-gradient(135deg, #6f4e37 0%, #8b6142 100%);">
+                                    <div class="card-body text-center text-white">
+                                        <h6>Total Feedback</h6>
+                                        <h2>${report.total_feedback}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card" style="background: linear-gradient(135deg, #8b6142 0%, #a47551 100%);">
+                                    <div class="card-body text-center text-white">
+                                        <h6>Rating Rata-rata</h6>
+                                        <h2>${report.rata_rata_rating} <i class="bi bi-star-fill"></i></h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card" style="background: linear-gradient(135deg, #c7a17a 0%, #d4b594 100%);">
+                                    <div class="card-body text-center text-white">
+                                        <h6>Belum Dibaca</h6>
+                                        <h2>${report.feedback_belum_dibaca}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card" style="background: linear-gradient(135deg, #5a3d2b 0%, #6f4e37 100%);">
+                                    <div class="card-body text-center text-white">
+                                        <h6>Sudah Dibaca</h6>
+                                        <h2>${report.feedback_sudah_dibaca}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Distribusi Rating -->
+                        <div class="card stat-card mb-4">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Distribusi Rating</h5>
+                            </div>
+                            <div class="card-body">
+                    `;
+                    
+                    for (let rating = 5; rating >= 1; rating--) {
+                        const count = report.rating_breakdown[rating] || 0;
+                        const percentage = report.total_feedback > 0 ? Math.round((count / report.total_feedback) * 100) : 0;
+                        html += `
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>${rating} Bintang</span>
+                                    <strong>${count} (${percentage}%)</strong>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" style="width: ${percentage}%; background-color: #8b6142;" role="progressbar">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                        
+                        <!-- Feedback List -->
+                        <div class="card stat-card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Feedback Terbaru</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nama</th>
+                                                <th>Rating</th>
+                                                <th>Kategori</th>
+                                                <th>Komentar</th>
+                                                <th>Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                    `;
+                    
+                    if (report.recent_feedbacks && report.recent_feedbacks.length > 0) {
+                        report.recent_feedbacks.forEach(feedback => {
+                            const shortComment = feedback.komentar.substring(0, 60);
+                            const hasMore = feedback.komentar.length > 60;
+                            const escapedComment = feedback.komentar.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                            html += `
+                                <tr>
+                                    <td><strong>${feedback.nama || 'Anonim'}</strong><br><small class="text-muted">${feedback.umur || '-'}</small></td>
+                                    <td>
+                                        <span class="badge" style="background-color: #8b6142;">
+                                            ${feedback.rating} <i class="bi bi-star-fill"></i>
+                                        </span>
+                                    </td>
+                                    <td>${feedback.kategori}</td>
+                                    <td>
+                                        <small>${shortComment}${hasMore ? '...' : ''}</small>
+                                        ${hasMore ? `<a href="#" class="view-comment ms-1" data-comment="${escapedComment}" style="color: #6f4e37;"><i class="bi bi-eye-fill"></i></a>` : ''}
+                                    </td>
+                                    <td><small>${feedback.created_at}</small></td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        html += `
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    Tidak ada feedback
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal untuk komentar lengkap -->
+                        <div class="modal fade" id="commentModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="background-color: #6f4e37; color: white;">
+                                        <h5 class="modal-title">Komentar Lengkap</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="modalCommentContent"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('report-content').innerHTML = html;
+                    
+                    // Add click handlers for view comment links
+                    setTimeout(() => {
+                        document.querySelectorAll('.view-comment').forEach(link => {
+                            link.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const comment = this.getAttribute('data-comment');
+                                document.getElementById('modalCommentContent').innerHTML = `<p>${comment}</p>`;
+                                const modal = new bootstrap.Modal(document.getElementById('commentModal'));
+                                modal.show();
+                            });
+                        });
+                    }, 100);
+                }
+                
+                // Show content
+                document.getElementById('content').style.display = 'block';
+            } else {
+                // Show error
+                document.getElementById('error-container').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Error: ${data.error}
+                    </div>
+                `;
+                document.getElementById('content').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            // Hide loading
+            document.getElementById('loading').style.display = 'none';
+            
+            // Show error
+            document.getElementById('error-container').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Error loading data: ${error.message}
+                </div>
+            `;
+            document.getElementById('content').style.display = 'block';
+        });
+});
+</script>
+{% endblock %}

@@ -3,7 +3,7 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 
 from core.decorators import role_required
-from .report import ReportManager, EmployeeReport, CustomerReport, SalesReport, InventoryReport
+from .report import ReportManager, EmployeeReport, CustomerReport, SalesReport, InventoryReport, FeedbackReport
 import json
 from datetime import datetime
 
@@ -194,6 +194,25 @@ def api_sales_report(request):
 
 @login_required
 @role_required('GENERAL_MANAGER')
+def api_feedback_report(request):
+    """API endpoint untuk data feedback dalam format JSON"""
+    manager = ReportManager()
+
+    try:
+        feedback_report = manager.get_report('feedback')
+        return JsonResponse({
+            'success': True,
+            'data': feedback_report.content
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+
+
+@login_required
+@role_required('GENERAL_MANAGER')
 def export_all_reports_json(request):
     """Export semua report ke JSON file dan download"""
     manager = ReportManager()
@@ -247,6 +266,31 @@ def export_employee_report_csv(request):
             'success': False,
             'error': str(e)
         }, status=400)
+
+
+@login_required
+@role_required('GENERAL_MANAGER')
+def feedback_report_view(request):
+    """Halaman laporan feedback pelanggan"""
+    manager = ReportManager()
+    
+    try:
+        feedback_report = manager.get_report('feedback')
+        
+        context = {
+            'page_title': 'Laporan Feedback Pelanggan',
+            'report': feedback_report,
+            'generated_at': datetime.now()
+        }
+        
+        return render(request, 'report/feedback_report.html', context)
+    
+    except Exception as e:
+        context = {
+            'error': str(e),
+            'page_title': 'Laporan Feedback - Error'
+        }
+        return render(request, 'report/feedback_report.html', context)
 
 
 def quick_stats_api(request):

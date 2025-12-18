@@ -41,13 +41,20 @@
     <div class="card stat-card mb-4" style="border-color: #8b6142;">
         <div class="card-header text-white" style="background-color: #8b6142;">
             <h5 class="mb-0">
-                <i class="bi bi-star-fill"></i> Customer Terbaik Bulan Ini
+                <i class="bi bi-trophy-fill"></i> Customer Terbaik Bulan Ini
             </h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <p><strong>Nama:</strong> {{ report.customer_terbaik.nama }}</p>
+                    <p>
+                        <strong>Nama:</strong> {{ report.customer_terbaik.nama }}
+                        {% if report.customer_terbaik.is_member %}
+                            <span class="badge ms-2" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #000;">
+                                <i class="bi bi-star-fill"></i> MEMBER
+                            </span>
+                        {% endif %}
+                    </p>
                 </div>
                 <div class="col-md-4">
                     <p><strong>Total Pembelian:</strong> {{ report.customer_terbaik.total_pembelian }}</p>
@@ -83,7 +90,14 @@
                     <tbody>
                         {% for customer in report.detail_customer %}
                         <tr>
-                            <td><strong>{{ customer.nama }}</strong></td>
+                            <td>
+                                <strong>{{ customer.nama }}</strong>
+                                {% if customer.is_member %}
+                                    <span class="badge ms-2" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #000;">
+                                        <i class="bi bi-star-fill"></i> MEMBER
+                                    </span>
+                                {% endif %}
+                            </td>
                             <td><strong style="color: #6f4e37;">{{ customer.total_pembelian }}</strong></td>
                             <td>
                                 <span class="badge" style="background-color: #c7a17a;">{{ customer.jumlah_transaksi }}</span>

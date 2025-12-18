@@ -1,0 +1,303 @@
+{% extends 'report/base.html' %}
+{% load static %}
+
+{% block title %}Feedback Pelanggan{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="bi bi-chat-left-heart-fill text-primary"></i>
+            Feedback Pelanggan
+        </h2>
+        <a href="{% url 'feedback:form' %}" class="btn btn-primary" target="_blank">
+            <i class="bi bi-link-45deg"></i> Link Feedback Form
+        </a>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Feedback</h6>
+                            <h3 class="mb-0">{{ stats.total }}</h3>
+                        </div>
+                        <i class="bi bi-chat-dots-fill text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Rata-rata Rating</h6>
+                            <h3 class="mb-0">
+                                {{ stats.rata_rata_rating|floatformat:1 }} ⭐
+                            </h3>
+                        </div>
+                        <i class="bi bi-star-fill text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Belum Dibaca</h6>
+                            <h3 class="mb-0">{{ stats.belum_dibaca }}</h3>
+                        </div>
+                        <i class="bi bi-envelope-fill text-danger" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Rating Breakdown</h6>
+                    {% for rating, count in stats.rating_breakdown.items %}
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>{{ rating }} ⭐</span>
+                            <strong>{{ count }}</strong>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="kategori" class="form-select">
+                        <option value="">Semua Kategori</option>
+                        {% for value, label in kategori_choices %}
+                            <option value="{{ value }}" {% if kategori_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Rating</label>
+                    <select name="rating" class="form-select">
+                        <option value="">Semua Rating</option>
+                        {% for i in "12345" %}
+                            <option value="{{ i }}" {% if rating_filter == i %}selected{% endif %}>
+                                {{ i }} Bintang
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="is_read" class="form-select">
+                        <option value="">Semua</option>
+                        <option value="false" {% if is_read == 'false' %}selected{% endif %}>Belum Dibaca</option>
+                        <option value="true" {% if is_read == 'true' %}selected{% endif %}>Sudah Dibaca</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-5 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-search"></i> Filter
+                    </button>
+                    <a href="{% url 'feedback:list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Feedback List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i>
+                Daftar Feedback ({{ feedbacks.count }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if feedbacks %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50">#</th>
+                                <th>Nama</th>
+                                <th>Umur</th>
+                                <th width="100">Rating</th>
+                                <th>Kategori</th>
+                                <th>Komentar</th>
+                                <th width="150">Tanggal</th>
+                                <th width="100">Status</th>
+                                <th width="100">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feedback in feedbacks %}
+                                <tr {% if not feedback.is_read %}class="table-warning"{% endif %}>
+                                    <td>{{ feedback.id }}</td>
+                                    <td>
+                                        <strong>{{ feedback.nama|default:"Anonim" }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if feedback.umur %}
+                                            <span class="badge bg-secondary">{{ feedback.get_umur_display }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.9rem;">
+                                            {{ feedback.rating }} ⭐
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ feedback.get_kategori_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>{{ feedback.komentar|truncatewords:15 }}</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ feedback.created_at|date:"d M Y H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        {% if feedback.is_read %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Dibaca
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-envelope"></i> Baru
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#feedbackModal{{ feedback.id }}"
+                                                    title="Lihat Detail">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <a href="{% url 'feedback:mark_read' feedback.id %}" 
+                                               class="btn btn-{% if feedback.is_read %}secondary{% else %}success{% endif %}"
+                                               title="{% if feedback.is_read %}Tandai Belum Dibaca{% else %}Tandai Sudah Dibaca{% endif %}">
+                                                <i class="bi bi-{% if feedback.is_read %}envelope{% else %}check2{% endif %}"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Modal Detail -->
+                                <div class="modal fade" id="feedbackModal{{ feedback.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    Detail Feedback #{{ feedback.id }}
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table class="table table-bordered">
+                                                    <tr>
+                                                        <th width="150">Nama</th>
+                                                        <td>{{ feedback.nama|default:"Anonim" }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Umur</th>
+                                                        <td>{{ feedback.get_umur_display|default:"-" }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Rating</th>
+                                                        <td>
+                                                            <span class="text-warning" style="font-size: 1.2rem;">
+                                                                {{ feedback.get_star_display }}
+                                                            </span>
+                                                            ({{ feedback.rating }}/5)
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Kategori</th>
+                                                        <td>
+                                                            <span class="badge bg-info">
+                                                                {{ feedback.get_kategori_display }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Komentar</th>
+                                                        <td>{{ feedback.komentar }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Tanggal</th>
+                                                        <td>{{ feedback.created_at|date:"d F Y, H:i" }} WIB</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Status</th>
+                                                        <td>
+                                                            {% if feedback.is_read %}
+                                                                <span class="badge bg-success">Sudah Dibaca</span>
+                                                            {% else %}
+                                                                <span class="badge bg-danger">Belum Dibaca</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{% url 'feedback:mark_read' feedback.id %}" 
+                                                   class="btn btn-{% if feedback.is_read %}secondary{% else %}success{% endif %}">
+                                                    <i class="bi bi-{% if feedback.is_read %}envelope{% else %}check2{% endif %}"></i>
+                                                    {% if feedback.is_read %}Tandai Belum Dibaca{% else %}Tandai Sudah Dibaca{% endif %}
+                                                </a>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    Tutup
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <p class="text-muted mt-3">Belum ada feedback</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

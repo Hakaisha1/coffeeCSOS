@@ -194,6 +194,8 @@ class CustomerReport(Report):
 
     def generate(self):
         """Generate laporan customer dari database"""
+        from customer.models import Member
+        
         customers = Customer.objects.all()
         
         if not customers.exists():
@@ -216,10 +218,19 @@ class CustomerReport(Report):
             
             jumlah_transaksi = riwayat_pembelian.count()
             
+            # Cek apakah customer adalah member
+            is_member = Member.objects.filter(nama__iexact=cust.nama).exists()
+            member_point = 0
+            if is_member:
+                member_obj = Member.objects.filter(nama__iexact=cust.nama).first()
+                member_point = member_obj.point if member_obj else 0
+            
             customer_data = {
                 'nama': cust.nama,
                 'total_pembelian': total_pembelian,
                 'jumlah_transaksi': jumlah_transaksi,
+                'is_member': is_member,
+                'member_point': member_point,
             }
             
             customer_stats.append(customer_data)
@@ -238,14 +249,17 @@ class CustomerReport(Report):
             'customer_terbaik': {
                 'nama': customer_terbaik['nama'],
                 'total_pembelian': f"Rp {customer_terbaik['total_pembelian']:,}",
-                'jumlah_transaksi': customer_terbaik['jumlah_transaksi']
+                'jumlah_transaksi': customer_terbaik['jumlah_transaksi'],
+                'is_member': customer_terbaik['is_member'],
+                'member_point': customer_terbaik['member_point']
             } if customer_terbaik else None,
             'detail_customer': [
                 {
                     'nama': cust['nama'],
-
                     'total_pembelian': f"Rp {cust['total_pembelian']:,}",
-                    'jumlah_transaksi': cust['jumlah_transaksi']
+                    'jumlah_transaksi': cust['jumlah_transaksi'],
+                    'is_member': cust['is_member'],
+                    'member_point': cust['member_point']
                 }
                 for cust in customer_stats
             ]
@@ -473,6 +487,75 @@ class InventoryReport(Report):
         return self.content
         
 
+class FeedbackReport(Report):
+    """Laporan Feedback Pelanggan"""
+    def __init__(self):
+        super().__init__("Laporan Feedback")
+
+    def generate(self):
+        """Generate laporan feedback dari database"""
+        from feedback.models import Feedback
+        
+        feedbacks = Feedback.objects.all()
+        
+        if not feedbacks.exists():
+            self.content = {
+                'message': 'Belum ada feedback dari pelanggan',
+                'total_feedback': 0
+            }
+            return self.content
+        
+        # Aggregate statistics
+        total_feedback = feedbacks.count()
+        
+        # Rating statistics
+        rating_counts = {}
+        for i in range(1, 6):
+            rating_counts[i] = feedbacks.filter(rating=i).count()
+        
+        # Calculate average rating
+        total_rating_sum = sum(fb.rating for fb in feedbacks)
+        rata_rata_rating = total_rating_sum / total_feedback if total_feedback > 0 else 0
+        
+        # Category breakdown
+        kategori_counts = {}
+        for value, label in Feedback.KATEGORI_CHOICES:
+            kategori_counts[label] = feedbacks.filter(kategori=value).count()
+        
+        # Age group breakdown (jika ada umur)
+        umur_counts = {}
+        for value, label in Feedback.UMUR_CHOICES:
+            umur_counts[label] = feedbacks.filter(umur=value).count()
+        
+        # Get recent feedbacks (latest 10)
+        recent_feedbacks = feedbacks[:10]
+        
+        self.content = {
+            'total_feedback': total_feedback,
+            'rata_rata_rating': round(rata_rata_rating, 2),
+            'rating_breakdown': rating_counts,
+            'kategori_breakdown': kategori_counts,
+            'umur_breakdown': umur_counts,
+            'feedback_belum_dibaca': feedbacks.filter(is_read=False).count(),
+            'feedback_sudah_dibaca': feedbacks.filter(is_read=True).count(),
+            'recent_feedbacks': [
+                {
+                    'id': fb.id,
+                    'nama': fb.nama or 'Anonim',
+                    'rating': fb.rating,
+                    'kategori': fb.get_kategori_display(),
+                    'umur': fb.get_umur_display() if fb.umur else '-',
+                    'komentar': fb.komentar,
+                    'created_at': fb.created_at.strftime('%d %b %Y %H:%M'),
+                    'is_read': fb.is_read
+                }
+                for fb in recent_feedbacks
+            ]
+        }
+        
+        return self.content
+
+
 class ReportManager:
     """Manager untuk mengelola semua jenis report"""
     def __init__(self):
@@ -496,6 +579,10 @@ class ReportManager:
         inventory_report.generate()
         self.reports.append(inventory_report)
 
+        feedback_report = FeedbackReport()
+        feedback_report.generate()
+        self.reports.append(feedback_report)
+
         return self.reports
     
     def get_report(self, report_type: str):
@@ -511,6 +598,7 @@ class ReportManager:
             'inventory': InventoryReport,
             'logistik': InventoryReport,
             'stok': InventoryReport,
+            'feedback': FeedbackReport,
         }
         
         report_class = report_map.get(report_type.lower())
