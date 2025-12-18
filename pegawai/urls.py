@@ -7,7 +7,13 @@ urlpatterns = [
     # Semua data pegawai
     path('', views.index, name='pegawai_index'),
     
+    # Absensi (form di modal)
+    path('absensi/add/', views.add_absensi, name='add_absensi'),
+
     # Data pegawai berdasarkan ID
+    path('employee/add/', views.add_pegawai, name='add_pegawai'),
+    path('employee/delete/', views.delete_employee, name='delete_pegawai'),
+
     path('api/pegawai/<str:id_pegawai>/', views.detail_pegawai, name='detail_pegawai'),
     path('api/pegawai/create/', views.create_pegawai, name='create_pegawai'),
     path('api/pegawai/update/<str:id_pegawai>/', views.update_pegawai, name='update_pegawai'),

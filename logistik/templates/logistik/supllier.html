@@ -90,17 +90,112 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            table-layout: fixed;
         }
 
         table th, table td {
             border: 1px solid #ccc;
             padding: 10px;
             text-align: left;
+            word-wrap: break-word;
+            min-height: 40px;
+            vertical-align: middle;
         }
 
         table th {
             background: var(--primary-color);
             color: var(--text-light);
+        }
+
+        table th:nth-child(1), table td:nth-child(1) {
+            width: 25%;
+        }
+
+        table th:nth-child(2), table td:nth-child(2) {
+            width: 20%;
+        }
+
+        table th:nth-child(3), table td:nth-child(3) {
+            width: 40%;
+        }
+
+        table th:nth-child(4), table td:nth-child(4) {
+            width: 15%;
+            text-align: center;
+        }
+
+        table td {
+            background: #fff;
+        }
+
+        table tr:hover td {
+            background: #f5f5f5;
+        }
+
+        .edit-btn {
+            padding: 6px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+            }
+
+            .sidebar h2 {
+                font-size: 24px !important;
+                text-align: center;
+            }
+
+            .sidebar a {
+                padding: 10px;
+                margin: 5px 0;
+                font-size: 14px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .card h3 {
+                font-size: 18px;
+            }
+
+            table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            table th, table td {
+                padding: 8px 5px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .edit-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -108,13 +203,13 @@
 
     <div class="sidebar">
         <h2 style=" font-size:34px; color: var(--accent-color); margin-bottom:20px;">
-            <i class="bi bi-cup-hot-fill"></i> CSOC
+            <i class="bi bi-cup-hot-fill"></i> CSOS
         </h2>
 
 
         <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
         <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
-        <a href="{% url 'supplier' %}">Supplier</a>
+        <a href="{% url 'daftar_supplier' %}">Supplier</a>
         <a href="{% url 'core:dashboard' %}"> Keluar ke Dashboard</a>
     </div>
 
@@ -122,7 +217,7 @@
 
         <div class="card">
             <h3>Master Supplier</h3>
-            <a  class="btn">+ Tambah Supplier</a>
+            <a href="{% url 'tambah_supplier' %}" class="btn">+ Tambah Supplier</a>
         </div>
 
         <div class="card">
@@ -133,6 +228,7 @@
                     <tr>
                         <th>Nama Supplier</th>
                         <th>Kontak</th>
+                        <th>barang</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -142,8 +238,9 @@
                     <tr>
                         <td>{{ s.nama }}</td>
                         <td>{{ s.kontak }}</td>
+                        <td>{{s.Barang }}</td>
                         <td>
-                            <a href="#" class="btn">Edit</a>
+                            <a href="{% url 'edit_supplier' s.id %}" class="edit-btn">Edit</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -168,7 +265,8 @@
                     <tr>
                         <td>${s.nama}</td>
                         <td>${s.kontak}</td>
-                        <td><a href="#" class="btn">Edit</a></td>
+                        <td>${s.Barang || '-'}</td>
+                        <td><a href="/logistik/supplier/edit/${s.id}/" class="edit-btn">Edit</a></td>
                     </tr>
                 `;
             });

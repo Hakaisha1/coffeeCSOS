@@ -121,18 +121,74 @@
         .edit-btn:hover {
             background: var(--secondary-color);
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+            }
+
+            .sidebar h2 {
+                font-size: 24px !important;
+                text-align: center;
+            }
+
+            .sidebar a {
+                padding: 10px;
+                margin: 5px 0;
+                font-size: 14px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .card h3 {
+                font-size: 18px;
+            }
+
+            table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            table th, table td {
+                padding: 8px 5px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .edit-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2 style=" font-size:34px; color: var(--accent-color); margin-bottom:20px;">
-            <i class="bi bi-cup-hot-fill"></i> CSOC
+            <i class="bi bi-cup-hot-fill"></i> CSOS
         </h2>
 
         <a href="{% url 'dashboard_logistik' %}">Dashboard</a>
         <a href="{% url 'daftar_barang' %}">Daftar Barang</a>
-        <a href="{% url 'supplier' %}">Supplier</a>
+        <a href="{% url 'daftar_supplier' %}">Supplier</a>
         <a href="{% url 'core:dashboard' %}" > Keluar ke Dashboard</a>
     </div>
 

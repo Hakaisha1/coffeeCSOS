@@ -21,16 +21,16 @@
         <div class="col-md-4">
             <div class="card stat-card" style="background: linear-gradient(135deg, #8b6142 0%, #a47551 100%);">
                 <div class="card-body text-center text-white">
-                    <h6>Total Saldo Semua Customer</h6>
-                    <h2 style="font-size: 1.3rem;">{{ report.total_saldo_semua_customer }}</h2>
+                    <h6>Total Pembelian Semua</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.total_pembelian_semua }}</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card stat-card" style="background: linear-gradient(135deg, #c7a17a 0%, #d4b594 100%);">
                 <div class="card-body text-center text-white">
-                    <h6>Rata-rata Saldo</h6>
-                    <h2 style="font-size: 1.3rem;">{{ report.rata_rata_saldo }}</h2>
+                    <h6>Rata-rata Pembelian</h6>
+                    <h2 style="font-size: 1.3rem;">{{ report.rata_rata_pembelian }}</h2>
                 </div>
             </div>
         </div>
@@ -76,8 +76,6 @@
                     <thead class="table-light">
                         <tr>
                             <th>Nama</th>
-                            <th>Saldo Saat Ini</th>
-                            <th>Total Top Up</th>
                             <th>Total Pembelian</th>
                             <th>Jumlah Transaksi</th>
                         </tr>
@@ -86,8 +84,6 @@
                         {% for customer in report.detail_customer %}
                         <tr>
                             <td><strong>{{ customer.nama }}</strong></td>
-                            <td>{{ customer.saldo_saat_ini }}</td>
-                            <td>{{ customer.total_top_up }}</td>
                             <td><strong style="color: #6f4e37;">{{ customer.total_pembelian }}</strong></td>
                             <td>
                                 <span class="badge" style="background-color: #c7a17a;">{{ customer.jumlah_transaksi }}</span>

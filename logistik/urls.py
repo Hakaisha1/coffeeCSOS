@@ -12,9 +12,9 @@ urlpatterns = [
     path("barang/", views.daftar_barang, name="daftar_barang"),
     path("tambah/", views.tambah_barang, name="tambah_barang"),
 
-    path("supplier/", views.supplier, name="supplier"),
-    # path("supplier/tambah/", views.tambah_supplier, name="tambah_supplier"),
-    # path("supplier/edit/<int:id>/", views.edit_supplier, name="edit_supplier"),
+    path("supplier/", views.supplier, name="daftar_supplier"),
+    path("supplier/tambah/", views.tambah_supplier, name="tambah_supplier"),
+    path("supplier/edit/<int:id>/", views.edit_supplier, name="edit_supplier"),
 
     # API (untuk AJAX)
     path("api/supplier/", views.api_supplier, name="api_supplier"),

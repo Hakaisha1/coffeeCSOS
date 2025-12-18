@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Customer, MenuItem, Pesanan, PesananDetail, Riwayat, Member, MenuItemBahan
 
+
 # Halaman Menu 
 def menu_view(request):
     menu = MenuItem.objects.all()
@@ -67,78 +68,85 @@ def menu_view(request):
                 error = "Uang bayar harus angka."
                 bayar = 0
             else:
-                bayar = int(bayar_input)
+bayar_input = request.POST.get("bayar", "0").replace(",", "")
+try:
+    bayar = int(bayar_input)
+except ValueError:
+    error = "Uang bayar harus angka."
+    bayar = 0
 
-            total_bayar = sum(item["total"] for item in cart)
-            member_obj = Member.objects.filter(nama__iexact=nama_input).first()
-            diskon = int(total_bayar * 0.05) if member_obj else 0
-            total_bayar_diskon = total_bayar - diskon
+total_bayar = sum(item["total"] for item in cart)
+member_obj = Member.objects.filter(nama__iexact=nama_input).first()
+diskon = int(total_bayar * 0.05) if member_obj else 0
+total_bayar_diskon = total_bayar - diskon
 
-            if not nama_input:
-                error = "Nama customer wajib diisi."
-            elif not cart:
-                error = "Keranjang masih kosong."
-            elif bayar < total_bayar_diskon:
-                error = f"Uang kurang. Total Rp{total_bayar_diskon:,}"
-            else:
-                try:
-                    with transaction.atomic():
-                        kembalian = bayar - total_bayar_diskon
+if not nama_input:
+    error = "Nama customer wajib diisi."
+elif not cart:
+    error = "Keranjang masih kosong."
+elif bayar < total_bayar_diskon:
+    error = f"Uang kurang. Total Rp{total_bayar_diskon:,}"
+else:
+    try:
+        with transaction.atomic():
+            kembalian = bayar - total_bayar_diskon
 
-                        # CUSTOMER
-                        customer, _ = Customer.objects.get_or_create(nama=nama_input)
+            # CUSTOMER
+            customer, _ = Customer.objects.get_or_create(nama=nama_input)
 
-                        # PESANAN
-                        pesanan = Pesanan.objects.create(
-                            customer=customer,
-                            total_harga=total_bayar_diskon,
-                            tanggal=timezone.now()
-                        )
+            # PESANAN
+            pesanan = Pesanan.objects.create(
+                customer=customer,
+                total_harga=total_bayar_diskon,
+                tanggal=timezone.now()
+            )
 
-                        # DETAIL PESANAN + STOK
-                        for item in cart:
-                            menu_item = MenuItem.objects.get(id=item["id"])
-                            PesananDetail.objects.create(
-                                pesanan=pesanan,
-                                customer=customer,
-                                menu=menu_item,
-                                jumlah=item["qty"],
-                                total_harga=item["total"]
-                            )
-                            # Kurangi stok
-                            for bahan in MenuItemBahan.objects.filter(menu_item=menu_item):
-                                bahan.kurangi_stok(item["qty"])
+            # DETAIL PESANAN + STOK
+            for item in cart:
+                menu_item = MenuItem.objects.get(id=item["id"])
+                PesananDetail.objects.create(
+                    pesanan=pesanan,
+                    customer=customer,
+                    menu=menu_item,
+                    jumlah=item["qty"],
+                    total_harga=item["total"]
+                )
+                # Kurangi stok
+                for bahan in MenuItemBahan.objects.filter(menu_item=menu_item):
+                    bahan.kurangi_stok(item["qty"])
 
-                        # RIWAYAT
-                        Riwayat.objects.create(
-                            customer=customer,
-                            total_belanja=total_bayar_diskon,
-                            pesanan=cart,
-                            timestamp=timezone.now()
-                        )
+            # RIWAYAT
+            Riwayat.objects.create(
+                customer=customer,
+                total_belanja=total_bayar_diskon,
+                pesanan=cart,
+                timestamp=timezone.now()
+            )
 
-                        # MEMBER -> tambah point
-                        if member_obj:
-                            point = total_bayar_diskon // 10000
-                            member_obj.point += point
-                            member_obj.save()
-                            messages.success(request, f"Point +{point}")
+            # MEMBER -> tambah point
+            if member_obj:
+                point = total_bayar_diskon // 10000
+                member_obj.point += point
+                member_obj.save()
+                messages.success(request, f"Point +{point}")
 
-                        # Kosongkan cart
-                        request.session["cart"] = []
-                        request.session["kembalian"] = kembalian
-                        messages.success(request, f"Transaksi berhasil. Kembalian: Rp{kembalian:,}")
-                        return redirect("customer:menu")
+            # Kosongkan cart
+            request.session["cart"] = []
+            request.session["kembalian"] = kembalian
+            messages.success(request, f"Transaksi berhasil. Kembalian: Rp{kembalian:,}")
+            return redirect("customer:menu")
 
-                except Exception as e:
-                    error = f"Terjadi kesalahan: {e}"
+    except Exception as e:
+        error = f"Terjadi kesalahan: {e}"
 
-    total_bayar = sum(item["total"] for item in cart)
-    if member_obj:
-        diskon = int(total_bayar * 0.05)
-        total_bayar_diskon = total_bayar - diskon
-    else:
-        total_bayar_diskon = total_bayar
+# Update total bayar di tampilan keranjang
+total_bayar = sum(item["total"] for item in cart)
+if member_obj:
+    diskon = int(total_bayar * 0.05)
+    total_bayar_diskon = total_bayar - diskon
+else:
+    total_bayar_diskon = total_bayar
+
 
     return render(request, "customer/menu.html", {
         "menu": menu,

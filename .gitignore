@@ -8,6 +8,8 @@ __pycache__/
 
 quick_seed.py
 seed_inventory.py
+software_test/
+
 # Django
 *.log
 local_settings.py
@@ -19,6 +21,8 @@ venv/
 env/
 ENV/
 .venv/
+
+staticfiles/
 
 # IDE
 .vscode/
