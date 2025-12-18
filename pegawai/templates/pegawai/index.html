@@ -188,14 +188,61 @@
             </div>
         </div>
 
+         <!-- Daftar Absensi Bulan Ini -->
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="bi bi-people"></i> Absensi Bulan Ini</h2>
+                <div>
+                    <button class="btn btn-coffee-outline me-2" data-bs-toggle="modal" data-bs-target="#modalAbsensiPegawai">
+                        <i class="bi bi-clock-history"></i> Absensi Pegawai
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Jenis</th>
+                            <th>ID Pegawai</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Pulang</th>
+                            <th>Jam Kerja</th>
+                            <th>Gaji Harian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in absensi_bulan_ini %}
+                        <tr>
+                            <td>{{ a.tanggal }}</td>
+                            <td>{{ a.get_jenis_display }}</td>
+                            <td>{{ a.id_pegawai }}</td>
+                            <td>{{ a.jam_masuk|time:"H:i" }}</td> {# Tambahkan |time:"H:i" #}
+                            <td>{{ a.jam_pulang|time:"H:i" }}</td> {# Tambahkan |time:"H:i" #}
+                            <td>{{ a.jam_kerja }} jam</td>
+                            <td>Rp {{ a.gaji_harian|floatformat:0 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Belum ada data absensi bulan ini.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Daftar Semua Pegawai -->
         <div class="content-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2><i class="bi bi-people"></i> Daftar Pegawai</h2>
-                <button class="btn btn-coffee" data-bs-toggle="modal" data-bs-target="#modalTambahPegawai">
-                    <i class="bi bi-plus-circle"></i> Tambah Pegawai
-                </button>
+                <div>  
+                    <button class="btn btn-coffee" data-bs-toggle="modal" data-bs-target="#modalTambahPegawai">
+                        <i class="bi bi-plus-circle"></i> Tambah Pegawai
+                    </button>
+                </div>
             </div>
+            {% if semua_pegawai %}
             <table class="table table-hover">
               <thead>
                 <tr>
@@ -222,7 +269,14 @@
                 {% endfor %}
               </tbody>
             </table>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-cup"></i>
+                <p>Belum ada data pegawai</p>
+            </div>
+            {% endif %}
         </div>
+
 
         <!-- Daftar Barista -->
         <div class="content-card">
@@ -236,9 +290,6 @@
                             <th>Nama</th>
                             <th>Shift</th>
                             <th>Gaji/Jam</th>
-                            <th>Jam Kerja</th>
-                            <th>Bonus/Jam</th>
-                            <th>Tambahan Jam Kerja</th>
                             <th>Total Gaji</th>
                             <th>Aksi</th>
                         </tr>
@@ -250,10 +301,7 @@
                             <td>{{ barista.nama }}</td>
                             <td><span class="badge badge-custom badge-barista">{{ barista.shift }}</span></td>
                             <td>Rp {{ barista.gaji_per_jam|floatformat:0 }}</td>
-                            <td>{{ barista.jam_kerja }} jam</td>
-                            <td>Rp {{ barista.bonus_per_jam|floatformat:0 }}</td>
-                            <td><strong>{{ barista.jumlah_jam }}</strong> Jam</td>
-                            <td><strong style="color: var(--primary-color);">Rp {{ barista.total_gaji|floatformat:0 }}</strong></td>
+                            <td><strong style="color: var(--primary-color);">Rp {{ barista.total_gaji_bulan_ini|floatformat:0 }}</strong></td> {# Data dari views.py #}
                             <td>
                                 <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ barista.nama }}?');">
                                 {% csrf_token %}
@@ -289,9 +337,6 @@
                             <th>Nama</th>
                             <th>Shift</th>
                             <th>Gaji/Jam</th>
-                            <th>Jam Kerja</th>
-                            <th>Bonus/Jam</th>
-                            <th>Tambahan Jam Kerja</th>
                             <th>Total Gaji</th>
                             <th>Aksi</th>
                         </tr>
@@ -303,10 +348,7 @@
                             <td>{{ waiter.nama }}</td>
                             <td><span class="badge badge-custom badge-barista">{{ waiter.shift }}</span></td>
                             <td>Rp {{ waiter.gaji_per_jam|floatformat:0 }}</td>
-                            <td>{{ waiter.jam_kerja }} jam</td>
-                            <td>Rp {{ waiter.bonus_per_jam|floatformat:0 }}</td>
-                            <td><strong>{{ waiter.jumlah_jam }}</strong> Jam</td>
-                            <td><strong style="color: var(--primary-color);">Rp {{ waiter.total_gaji|floatformat:0 }}</strong></td>
+                            <td><strong style="color: var(--primary-color);">Rp {{ waiter.total_gaji_bulan_ini|floatformat:0 }}</strong></td> {# Data dari views.py #}
                             <td>
                                 <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ waiter.nama }}?');">
                                 {% csrf_token %}
@@ -342,9 +384,6 @@
                             <th>Nama</th>
                             <th>Shift</th>
                             <th>Gaji/Jam</th>
-                            <th>Jam Kerja</th>
-                            <th>Bonus/Jam</th>
-                            <th>Tambahan Jam Kerja</th>
                             <th>Total Gaji</th>
                             <th>Aksi</th>
                         </tr>
@@ -356,10 +395,7 @@
                             <td>{{ cleaner.nama }}</td>
                             <td><span class="badge badge-custom badge-barista">{{ cleaner.shift }}</span></td>
                             <td>Rp {{ cleaner.gaji_per_jam|floatformat:0 }}</td>
-                            <td>{{ cleaner.jam_kerja }} jam</td>
-                            <td>Rp {{ cleaner.bonus_per_jam|floatformat:0 }}</td>
-                            <td><strong>{{ cleaner.jumlah_jam}}</strong> Jam</td>
-                            <td><strong style="color: var(--primary-color);">Rp {{ cleaner.total_gaji|floatformat:0 }}</strong></td>
+                            <td><strong style="color: var(--primary-color);">Rp {{ cleaner.total_gaji_bulan_ini|floatformat:0 }}</strong></td> {# Data dari views.py #}
                             <td>
                                 <form method="POST" action="{% url 'pegawai:delete_pegawai' %}" onsubmit="return confirm('Hapus {{ cleaner.nama }}?');">
                                 {% csrf_token %}
@@ -427,20 +463,6 @@
             <input type="number" name="gaji_per_jam" class="form-control" required>
         </div>
 
-        <div class="col-md-4">
-            <label class="form-label">Bonus per Jam Lembur</label>
-            <input type="number" name="bonus_per_jam" class="form-control" required>
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Jam Kerja</label>
-            <input type="number" name="jam_kerja" class="form-control" value="0">
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Jam Lembur</label>
-            <input type="number" name="jumlah_jam" class="form-control" value="0">
-        </div>
     </div>
 
         <div class="modal-footer">
@@ -451,6 +473,58 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Absensi Pegawai -->
+<div class="modal fade" id="modalAbsensiPegawai" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'pegawai:add_absensi' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Absensi Pegawai</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Jenis Pegawai</label>
+            <select name="jenis" class="form-select" required>
+              <option value="barista">Barista</option>
+              <option value="waiter">Waiter</option>
+              <option value="cleaner">Cleaner</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">ID Pegawai</label>
+            <input type="text" name="id_pegawai" class="form-control" placeholder="misal B001" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Tanggal</label>
+            <input type="date" name="tanggal" class="form-control" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Jam Masuk</label>
+            <input type="time" name="jam_masuk" class="form-control" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Jam Pulang</label>
+            <input type="time" name="jam_pulang" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-coffee">Simpan Absensi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
