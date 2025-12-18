@@ -1,173 +1,229 @@
+from django.db import transaction
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Customer, MenuItem, Pesanan, PesananDetail
-from logistik.models import Barang
-from customer.models import Riwayat
-from django.utils import timezone
-from customer.models import MenuItemBahan
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import Customer, MenuItem, Pesanan, PesananDetail, Riwayat, Member, MenuItemBahan
 
 
+# Halaman Menu 
 def menu_view(request):
     menu = MenuItem.objects.all()
-
-    cart = request.session.get('cart', [])
-    customer_id = request.session.get('customer_id')
-    customer = Customer.objects.filter(id=customer_id).first() if customer_id else None
-
+    cart = request.session.get("cart", [])
     error = None
-    success = None
-    kembalian = None
+    kembalian = request.session.pop("kembalian", None)
+    diskon = 0
+    total_bayar = sum(item["total"] for item in cart)
+    total_bayar_diskon = total_bayar
+    member_obj = None
+    nama_input = ""
 
-    # TAMBAH ITEM
-    if request.method == "POST" and 'add_item' in request.POST:
-        item_id = int(request.POST.get("item_id"))
-        menu_item = MenuItem.objects.get(id=item_id)
-
-        found = False
-        for c in cart:
-            if c['id'] == item_id:
-                c['qty'] += 1
-                c['total'] = c['qty'] * c['harga']
-                found = True
-                break
-
-        if not found:
-            cart.append({
-                "id": menu_item.id,
-                "nama": menu_item.nama,
-                "harga": menu_item.harga,
-                "qty": 1,
-                "total": menu_item.harga
-            })
-
-        request.session["cart"] = cart
-        success = f"{menu_item.nama} ditambahkan ke keranjang."
-
-    # HAPUS ITEM
-    if request.method == "POST" and "hapus_item" in request.POST:
-        item_id = int(request.POST.get("item_id"))
-        cart = [c for c in cart if c['id'] != item_id]
-        request.session['cart'] = cart
-        success = "Item dihapus dari keranjang."
-
-    # UPDATE JUMLAH
-    if request.method == "POST" and "update_qty" in request.POST:
-        item_id = int(request.POST.get("item_id"))
-        qty = int(request.POST.get("qty", 1))
-        for c in cart:
-            if c['id'] == item_id:
-                c['qty'] = qty
-                c['total'] = qty * c['harga']
-                break
-        request.session['cart'] = cart
-        success = "Jumlah diperbarui."
-
-    # CHECKOUT 
-    if request.method == "POST" and "checkout" in request.POST:
-
-        nama = request.POST.get("nama", "").strip()
-        if not nama:
-            error = "Nama customer wajib diisi untuk checkout."
-        else:
-            customer, created = Customer.objects.get_or_create(nama=nama)
-            request.session["customer_id"] = customer.id
-
-            total_bayar = sum(item['total'] for item in cart)
-            bayar = int(request.POST.get("bayar", 0))
-
-            if bayar < total_bayar:
-                error = f"Uang bayar kurang! Total: Rp{total_bayar:,}"
+    if request.method == "POST":
+        # ADD ITEM
+        if "add_item" in request.POST:
+            item_id = int(request.POST.get("item_id"))
+            menu_item = MenuItem.objects.get(id=item_id)
+            for item in cart:
+                if item["id"] == item_id:
+                    item["qty"] += 1
+                    item["total"] = item["qty"] * item["harga"]
+                    break
             else:
-                kembalian = bayar - total_bayar
+                cart.append({
+                    "id": menu_item.id,
+                    "nama": menu_item.nama,
+                    "harga": int(menu_item.harga),
+                    "qty": 1,
+                    "total": int(menu_item.harga),
+                })
+            request.session["cart"] = cart
+            messages.success(request, f"{menu_item.nama} ditambahkan ke keranjang.")
+            return redirect("customer:menu")
 
-                pesanan = Pesanan.objects.create(
+        # HAPUS ITEM
+        if "hapus_item" in request.POST:
+            item_id = int(request.POST.get("item_id"))
+            cart = [c for c in cart if c["id"] != item_id]
+            request.session["cart"] = cart
+            messages.success(request, "Item dihapus dari keranjang.")
+            return redirect("customer:menu")
+
+        # CEK DISKON
+        if "cek_diskon" in request.POST:
+            nama_input = request.POST.get("nama", "").strip()
+            if nama_input:
+                member_obj = Member.objects.filter(nama__iexact=nama_input).first()
+                if member_obj:
+                    diskon = int(total_bayar * 0.05)
+                    total_bayar_diskon = total_bayar - diskon
+            else:
+                error = "Nama customer wajib diisi untuk cek diskon."
+
+        # BAYAR
+        if "checkout" in request.POST:
+            nama_input = request.POST.get("nama", "").strip()
+            bayar_input = request.POST.get("bayar", "0").replace(",", "")
+            if not bayar_input.isdigit():
+                error = "Uang bayar harus angka."
+                bayar = 0
+            else:
+bayar_input = request.POST.get("bayar", "0").replace(",", "")
+try:
+    bayar = int(bayar_input)
+except ValueError:
+    error = "Uang bayar harus angka."
+    bayar = 0
+
+total_bayar = sum(item["total"] for item in cart)
+member_obj = Member.objects.filter(nama__iexact=nama_input).first()
+diskon = int(total_bayar * 0.05) if member_obj else 0
+total_bayar_diskon = total_bayar - diskon
+
+if not nama_input:
+    error = "Nama customer wajib diisi."
+elif not cart:
+    error = "Keranjang masih kosong."
+elif bayar < total_bayar_diskon:
+    error = f"Uang kurang. Total Rp{total_bayar_diskon:,}"
+else:
+    try:
+        with transaction.atomic():
+            kembalian = bayar - total_bayar_diskon
+
+            # CUSTOMER
+            customer, _ = Customer.objects.get_or_create(nama=nama_input)
+
+            # PESANAN
+            pesanan = Pesanan.objects.create(
+                customer=customer,
+                total_harga=total_bayar_diskon,
+                tanggal=timezone.now()
+            )
+
+            # DETAIL PESANAN + STOK
+            for item in cart:
+                menu_item = MenuItem.objects.get(id=item["id"])
+                PesananDetail.objects.create(
+                    pesanan=pesanan,
                     customer=customer,
-                    total_harga=total_bayar
+                    menu=menu_item,
+                    jumlah=item["qty"],
+                    total_harga=item["total"]
                 )
+                # Kurangi stok
+                for bahan in MenuItemBahan.objects.filter(menu_item=menu_item):
+                    bahan.kurangi_stok(item["qty"])
 
-                for item in cart:
-                    menu_item = MenuItem.objects.get(id=item['id'])
-                    PesananDetail.objects.create(
-                        customer=customer,
-                        menu=menu_item,
-                        jumlah=item['qty'],
-                        total_harga=item['total']
-                    )
+            # RIWAYAT
+            Riwayat.objects.create(
+                customer=customer,
+                total_belanja=total_bayar_diskon,
+                pesanan=cart,
+                timestamp=timezone.now()
+            )
 
-                # Pengurangan stok sudah otomatis via signal di logistik/signals.py
-                
-                # Simpan ke Riwayat
-                Riwayat.objects.create(
-                    customer=customer,
-                    jenis='pembelian',
-                    total_belanja=total_bayar,
-                    perubahan=kembalian,
-                    pesanan=cart,  
-                )
+            # MEMBER -> tambah point
+            if member_obj:
+                point = total_bayar_diskon // 10000
+                member_obj.point += point
+                member_obj.save()
+                messages.success(request, f"Point +{point}")
 
+            # Kosongkan cart
+            request.session["cart"] = []
+            request.session["kembalian"] = kembalian
+            messages.success(request, f"Transaksi berhasil. Kembalian: Rp{kembalian:,}")
+            return redirect("customer:menu")
 
-                cart = []
-                request.session['cart'] = cart
-                success = f"Transaksi berhasil. Kembalian: Rp{kembalian:,}"
+    except Exception as e:
+        error = f"Terjadi kesalahan: {e}"
 
-    total_bayar = sum(item['total'] for item in cart)
+# Update total bayar di tampilan keranjang
+total_bayar = sum(item["total"] for item in cart)
+if member_obj:
+    diskon = int(total_bayar * 0.05)
+    total_bayar_diskon = total_bayar - diskon
+else:
+    total_bayar_diskon = total_bayar
+
 
     return render(request, "customer/menu.html", {
         "menu": menu,
         "cart": cart,
         "error": error,
-        "success": success,
         "total_bayar": total_bayar,
+        "diskon": diskon,
+        "total_bayar_diskon": total_bayar_diskon,
         "kembalian": kembalian,
-        "customer": customer,
+        "member": member_obj,
+        "nama_input": nama_input
     })
 
 
+# Halaman Manajemen Member
+def manajemen_member(request):
+    members = Member.objects.all().order_by("id")
+    return render(request, "customer/manajemen_member.html", {"members": members})
+
+@csrf_exempt
+def tambah_member_ajax(request):
+    if request.method == "POST":
+        nama = request.POST.get("nama", "").strip()
+        umur = request.POST.get("umur", "").strip()
+        pekerjaan = request.POST.get("pekerjaan", "").strip()
+
+        if not nama or not umur or not pekerjaan:
+            return JsonResponse({"success": False, "error": "Semua field harus diisi."})
+
+        if not umur.isdigit():
+            return JsonResponse({"success": False, "error": "Umur harus berupa angka."})
+
+        if Member.objects.filter(nama__iexact=nama).exists():
+            return JsonResponse({"success": False, "error": "Nama sudah terdaftar."})
+
+        member = Member.objects.create(
+            nama=nama,
+            umur=int(umur),
+            pekerjaan=pekerjaan
+        )
+
+        return JsonResponse({
+            "success": True,
+            "member": {
+                "id": member.id,
+                "nama": member.nama,
+                "umur": member.umur,
+                "pekerjaan": member.pekerjaan,
+                "created_at": member.created_at.strftime("%d/%m/%Y")
+            }
+        })
+
+    return JsonResponse({"success": False, "error": "Invalid request"})
 
 
+# Tambah Menu
 def tambah_menu_view(request):
     if request.method == "POST":
         nama = request.POST.get("nama")
         harga = request.POST.get("harga")
-        bahan_text = request.POST.get("bahan")  # textarea
 
-        if not nama or not harga or not bahan_text:
-            messages.error(request, "Semua field wajib diisi.")
-            return redirect("tambah_menu")
+        if not nama or not harga:
+            messages.error(request, "Nama & harga wajib diisi.")
+            return redirect("customer:tambah_menu")
 
-        # Buat menu baru
-        menu_item, created = MenuItem.objects.get_or_create(
-            nama=nama,
-            defaults={"harga": harga}
-        )
+        if MenuItem.objects.filter(nama__iexact=nama).exists():
+            messages.error(request, "Menu sudah ada.")
+            return redirect("customer:tambah_menu")
 
-        if not created:
-            messages.error(request, f"Menu {nama} sudah ada.")
-            return redirect("tambah_menu")
-
-        # Proses bahan
-        bahan_list = [b.strip() for b in bahan_text.splitlines() if b.strip()]
-        for bahan_nama in bahan_list:
-            try:
-                barang = Barang.objects.get(nama=bahan_nama)
-                MenuItemBahan.objects.create(
-                    menu_item=menu_item,
-                    barang=barang,
-                    jumlah_dibutuhkan=1
-                )
-            except Barang.DoesNotExist:
-                messages.error(request, f"Barang {bahan_nama} tidak ditemukan di stok.")
-                continue
-
-        messages.success(request, f"Menu {nama} berhasil ditambahkan.")
-        return redirect("menu")  
+        MenuItem.objects.create(nama=nama, harga=harga)
+        messages.success(request, f"Menu {nama} ditambahkan.")
+        return redirect("customer:menu")
 
     return render(request, "customer/tambah_menu.html")
 
+
 # Riwayat Transaksi
 def riwayat_view(request):
-    riwayat_list = Riwayat.objects.all().order_by('-timestamp')
-
-    return render(request, "customer/riwayat.html", {
-        "riwayat_list": riwayat_list
-    })
+    riwayat_list = Riwayat.objects.all().order_by("-timestamp")
+    return render(request, "customer/riwayat.html", {"riwayat_list": riwayat_list})
