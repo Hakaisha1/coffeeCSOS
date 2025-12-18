@@ -6,7 +6,6 @@
     <title>Riwayat - CoffeeCSOS</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script>
     tailwind.config = {
         theme: {
@@ -34,52 +33,32 @@
 
         .text-primary { color: var(--primary-color) !important; }
         .text-secondary { color: var(--secondary-color) !important; }
-        .text-accent { color: var(--accent-color) !important; }
 
-        .border-primary { border-color: var(--primary-color) !important; }
         .border-secondary { border-color: var(--secondary-color) !important; }
     </style>
 </head>
 
+<body class="bg-accent font-sans">
 
-<body class="bg-gray-100 font-sans">
-
+<!--HEADER-->
 <header class="bg-primary text-white px-6 py-4 shadow-lg sticky top-0 z-50">
-
     <div class="max-w-7xl mx-auto flex items-center justify-between">
-
-        <!-- KIRI: Tombol Kembali + Judul -->
-        <div class="flex items-center gap-4">
-
-            <!-- TOMBOL KEMBALI -->
-            <a href="{% url 'core:dashboard' %}"
-               class="inline-flex items-center gap-2 bg-white text-primary px-4 py-2 rounded-full shadow
-                      hover:bg-secondary hover:text-primary transition font-semibold">
-
+        <div class="flex items-center">
+            <a href="{% url 'core:dashboard' %}" 
+            class="flex items-center text-white hover:text-secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
+                    viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 19l-7-7 7-7"/>
+                        d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali
             </a>
-
-            <!-- JUDUL -->
-            <h1 class="text-2xl font-bold tracking-wide">☕ CoffeeCSOS – Kasir</h1>
+            <h1 class="text-2xl font-bold tracking-wide ml-1">☕ CoffeeCSOS</h1>
         </div>
 
-        <!-- KANAN: NAVBAR -->
         <nav>
-            <div class="bg-white px-6 py-2 shadow rounded-full flex items-center space-x-8 text-primary font-semibold">
-
-                <!-- PESANAN -->
-                <a href="{% url 'menu' %}" 
-                    class="flex items-center gap-2 transition
-                          {% if request.resolver_match.url_name == 'menu' %}
-                              text-secondary border-b-2 border-secondary pb-1
-                          {% else %}
-                              hover:text-secondary
-                          {% endif %}">
+            <div class="bg-white px-6 py-2 shadow rounded-full flex items-center space-x-6 text-primary font-semibold">
+                <a href="{% url 'customer:menu' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'menu' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -88,14 +67,8 @@
                     Pesanan
                 </a>
 
-                <!-- TAMBAH MENU -->
-                <a href="{% url 'tambah_menu' %}"
-                    class="flex items-center gap-2 transition
-                          {% if request.resolver_match.url_name == 'tambah_menu' %}
-                              text-secondary border-b-2 border-secondary pb-1
-                          {% else %}
-                              hover:text-secondary
-                          {% endif %}">
+                <a href="{% url 'customer:tambah_menu' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'tambah_menu' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -104,14 +77,8 @@
                     Tambah Menu
                 </a>
 
-                <!-- RIWAYAT -->
-                <a href="{% url 'customer_riwayat' %}"
-                    class="flex items-center gap-2 transition
-                          {% if request.resolver_match.url_name == 'customer_riwayat' %}
-                              text-secondary border-b-2 border-secondary pb-1
-                          {% else %}
-                              hover:text-secondary
-                          {% endif %}">
+                <a href="{% url 'customer:riwayat' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'riwayat' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -120,26 +87,33 @@
                     Riwayat
                 </a>
 
+                <a href="{% url 'customer:manajemen_member' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'manajemen_member' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5.121 17.804A5 5 0 1112 21a5 5 0 01-6.879-3.196zM12 7a4 4 0 100-8 4 4 0 000 8z" />
+                    </svg>
+                    Member
+                </a>
             </div>
         </nav>
 
     </div>
-
 </header>
 
-<div class="max-w-4xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-primary mt-8">Riwayat Transaksi</h2>
+
+<div class="max-w-4xl mx-auto px-6 mt-8">
+    <h2 class="text-3xl font-bold text-primary mb-6">Riwayat Transaksi</h2>
 
     {% if riwayat_list %}
         <div class="space-y-6">
             {% for riwayat in riwayat_list %}
                 <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-200 border border-gray-200">
-
-                    <!-- Header Riwayat -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                             <p class="text-xl font-semibold text-gray-800">
-                                #{{ riwayat.id }} 
+                                #{{ riwayat.id }}
                                 <span class="text-gray-500 text-sm ml-2">
                                     {{ riwayat.timestamp|date:"d M Y H:i" }}
                                 </span>
@@ -164,7 +138,6 @@
 
                     <hr class="my-4">
 
-                    <!-- Daftar Item -->
                     <ul class="space-y-1">
                         {% for item in riwayat.pesanan %}
                             <li class="flex justify-between text-gray-700">
@@ -176,7 +149,6 @@
                 </div>
             {% endfor %}
         </div>
-
     {% else %}
         <p class="text-gray-600">Belum ada transaksi.</p>
     {% endif %}

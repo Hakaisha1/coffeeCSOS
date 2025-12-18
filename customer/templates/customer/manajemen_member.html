@@ -1,0 +1,221 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Manajemen Member - CoffeeCSOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6f4e37;
+            --secondary-color: #c7a17a;
+            --accent-color: #f4e4c1;
+        }
+
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .bg-secondary { background-color: var(--secondary-color) !important; }
+        .bg-accent { background-color: var(--accent-color) !important; }
+
+        .text-primary { color: var(--primary-color) !important; }
+        .text-secondary { color: var(--secondary-color) !important; }
+
+        .border-secondary { border-color: var(--secondary-color) !important; }
+
+        .card { transition: .2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0px 6px 18px rgba(0,0,0,0.15); }
+    </style>
+</head>
+<body class="bg-[#FFF9E6] font-sans">
+
+<!--HEADER-->
+<header class="bg-primary text-white px-6 py-4 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center">
+            <a href="{% url 'core:dashboard' %}" 
+            class="flex items-center text-white hover:text-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-2xl font-bold tracking-wide ml-1">☕ CoffeeCSOS</h1>
+        </div>
+        <nav>
+            <div class="bg-white px-6 py-2 shadow rounded-full flex items-center space-x-6 text-primary font-semibold">
+                <a href="{% url 'customer:menu' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'menu' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 12h6V3H3v9zm0 9h6v-6H3v6zm9 0h6v-9h-6v9zm0-18v6h6V3h-6z" />
+                    </svg>
+                    Pesanan
+                </a>
+
+                <a href="{% url 'customer:tambah_menu' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'tambah_menu' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 4v16m8-8H4" />
+                    </svg>
+                    Tambah Menu
+                </a>
+
+                <a href="{% url 'customer:riwayat' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'riwayat' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Riwayat
+                </a>
+
+                <a href="{% url 'customer:manajemen_member' %}" class="flex items-center gap-1 transition
+                    {% if request.resolver_match.url_name == 'manajemen_member' %} text-secondary border-b-2 border-secondary pb-1 {% else %} hover:text-secondary {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5.121 17.804A5 5 0 1112 21a5 5 0 01-6.879-3.196zM12 7a4 4 0 100-8 4 4 0 000 8z" />
+                    </svg>
+                    Member
+                </a>
+            </div>
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="max-w-7xl mx-auto px-6 py-10">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-primary">Manajemen Member</h2>
+            <p class="text-gray-600">Kelola data member dan loyalitas pelanggan</p>
+        </div>
+        <button id="btnTambahMember"
+           class="bg-primary text-white px-4 py-2 rounded-lg shadow
+                  flex items-center gap-2 hover:bg-secondary transition">
+            ➕ Tambah Member
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl shadow border border-gray-200 p-6">
+        <div class="mb-4">
+            <h3 class="font-semibold text-lg">Daftar Member</h3>
+            <p class="text-sm text-gray-500">Total {{ members|length }} member terdaftar</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b text-gray-600">
+                        <th class="py-3">Nama</th>
+                        <th>Umur</th>
+                        <th>Pekerjaan</th>
+                        <th>Status</th>
+                        <th>Tanggal Daftar</th>
+                    </tr>
+                </thead>
+                <tbody id="memberList">
+                    {% for member in members %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-3 font-medium">{{ member.nama }}</td>
+                        <td>{{ member.umur }} tahun</td>
+                        <td>{{ member.pekerjaan }}</td>
+                        <td>
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                Aktif
+                            </span>
+                        </td>
+                        <td>{{ member.created_at|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-gray-500">
+                            Belum ada member
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- Modal Tambah Member -->
+<div id="modalTambahMember" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-96 relative">
+        <h2 class="text-xl font-bold text-primary mb-4">Tambah Member</h2>
+        <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✖</button>
+        <form id="formTambahMember" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                <input type="text" name="nama" placeholder="Masukkan nama lengkap"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Pekerjaan</label>
+                <input type="text" name="pekerjaan" placeholder="Masukkan pekerjaan"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Umur</label>
+                <input type="text" name="umur" placeholder="Masukkan umur"
+                       class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            </div>
+
+            <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary w-full">
+                Simpan
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    const csrftoken = '{{ csrf_token }}';
+    $('#btnTambahMember').click(() => $('#modalTambahMember').removeClass('hidden').addClass('flex'));
+    $('#closeModal').click(() => $('#modalTambahMember').removeClass('flex').addClass('hidden'));
+    $('#formTambahMember').submit(function(e){
+        e.preventDefault();
+        $.ajax({
+            url: "{% url 'customer:tambah_member_ajax' %}",
+            method: "POST",
+            data: $(this).serialize(),
+            headers: { "X-CSRFToken": csrftoken },
+            success: function(response){
+                if(response.success){
+                    $('#memberList').prepend(`
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 font-medium">${response.member.nama}</td>
+                            <td>${response.member.umur} tahun</td>
+                            <td>${response.member.pekerjaan}</td>
+                            <td>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                    Aktif
+                                </span>
+                            </td>
+                            <td>${response.member.created_at}</td>
+                        </tr>
+                    `);
+                    $('#modalTambahMember').removeClass('flex').addClass('hidden');
+                    $('#formTambahMember')[0].reset();
+                } else {
+                    alert(response.error || 'Gagal menambahkan member');
+                }
+            },
+            error: function(xhr){ alert('Terjadi kesalahan: ' + xhr.responseText); }
+        });
+    });
+</script>
+</body>
+</html>
